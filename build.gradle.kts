@@ -17,7 +17,6 @@ dependencies {
     implementation(gradleApi())
     implementation(kotlin("stdlib"))
 
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
     testImplementation("org.assertj:assertj-core:3.24.2")
     testImplementation(gradleTestKit())
 }
@@ -47,8 +46,12 @@ gradlePlugin {
     }
 }
 
-tasks.named<Test>("test") {
-    useJUnitPlatform()
+testing {
+    suites {
+        val test by getting(JvmTestSuite::class) {
+            useJUnitJupiter("5.10.1")
+        }
+    }
 }
 
 spotless {
