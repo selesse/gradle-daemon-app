@@ -66,8 +66,12 @@ daemonApp {
     // Application arguments
     appArgs = listOf("--config", "/path/to/config")
 
-    // Where to copy JAR locally (default: ./release)
-    releaseDir = file("release")
+    // Where to copy JAR locally
+    // Default: Platform-specific directory:
+    //   - Windows: %APPDATA%/${serviceId}
+    //   - macOS: ~/Library/Application Support/${serviceId}
+    //   - Linux: $XDG_DATA_HOME/${serviceId} or ~/.local/share/${serviceId}
+    releaseDir = file("/custom/path")
 
     // Log file location (default: releaseDir/daemon.log)
     logFile = file("logs/daemon.log")

@@ -42,7 +42,10 @@ abstract class DaemonAppExtension @Inject constructor() {
 
     /**
      * Optional: Directory where the JAR will be copied locally.
-     * Default: project.layout.projectDirectory.dir("release")
+     * Default: Platform-specific directory + serviceId:
+     *   - Windows: %APPDATA%/${serviceId}
+     *   - macOS: ~/Library/Application Support/${serviceId}
+     *   - Linux: $XDG_DATA_HOME/${serviceId} or ~/.local/share/${serviceId}
      */
     @get:InputFile
     @get:Optional

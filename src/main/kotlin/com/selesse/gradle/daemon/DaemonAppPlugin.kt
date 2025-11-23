@@ -14,7 +14,27 @@ abstract class DaemonAppPlugin : Plugin<Project> {
         val extension = project.extensions.create("daemonApp", DaemonAppExtension::class.java)
 
         extension.keepAlive.convention(true)
-        extension.releaseDir.convention(project.layout.projectDirectory.file("release"))
+        extension.releaseDir.convention(
+            project.layout.file(
+                extension.serviceId.map { serviceId ->
+                    val configBaseDir = when {
+                        System.getProperty("os.name").lowercase().contains("win") -> {
+                            // Windows: %APPDATA%
+                            System.getenv("APPDATA")
+                        }
+                        System.getProperty("os.name").lowercase().contains("mac") -> {
+                            // macOS: ~/Library/Application Support
+                            "${System.getProperty("user.home")}/Library/Application Support"
+                        }
+                        else -> {
+                            // Linux/Unix: XDG_DATA_HOME or ~/.local/share
+                            System.getenv("XDG_DATA_HOME") ?: "${System.getProperty("user.home")}/.local/share"
+                        }
+                    }
+                    project.file("$configBaseDir/$serviceId")
+                },
+            ),
+        )
         extension.jvmArgs.convention(emptyList())
         extension.appArgs.convention(emptyList())
 
