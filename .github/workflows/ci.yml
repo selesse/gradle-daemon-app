@@ -33,3 +33,15 @@ jobs:
         with:
           name: test-results-${{ matrix.os }}
           path: build/reports/tests/test/
+
+      - name: Build example projects
+        run: |
+          for example_dir in examples/*/; do
+            if [ -f "${example_dir}gradlew" ]; then
+              echo "Building example: ${example_dir}"
+              cd "${example_dir}"
+              ./gradlew build --no-daemon
+              cd ../..
+            fi
+          done
+        shell: bash
