@@ -35,6 +35,7 @@ jobs:
           path: build/reports/tests/test/
 
       - name: Build example projects
+        if: matrix.os == 'ubuntu-latest'
         run: |
           for example_dir in examples/*/; do
             if [ -f "${example_dir}gradlew" ]; then
