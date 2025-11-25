@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.selesse.gradle"
-version = "0.2.0-SNAPSHOT"
+version = "0.2.0"
 
 repositories {
     mavenCentral()
