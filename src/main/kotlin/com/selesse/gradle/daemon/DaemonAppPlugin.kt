@@ -91,6 +91,11 @@ abstract class DaemonAppPlugin : Plugin<Project> {
             description = "Show the status of the daemon application"
         }
 
+        project.tasks.register("daemonLogs", DaemonLogsTask::class.java) {
+            group = "daemon"
+            description = "Print the daemon application logs"
+        }
+
         project.tasks.register("uninstallDaemon", UninstallDaemonTask::class.java) {
             group = "daemon"
             description = "Uninstall the daemon application"

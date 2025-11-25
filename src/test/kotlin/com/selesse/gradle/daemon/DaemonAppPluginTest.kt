@@ -34,6 +34,7 @@ class DaemonAppPluginTest {
             "stopDaemon",
             "restartDaemon",
             "daemonStatus",
+            "daemonLogs",
             "uninstallDaemon",
         )
 
