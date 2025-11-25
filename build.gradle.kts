@@ -4,10 +4,12 @@ plugins {
     `maven-publish`
     id("com.gradle.plugin-publish") version "1.3.0"
     id("com.diffplug.spotless") version "6.25.0"
+    id("org.jetbrains.changelog") version "2.2.1"
+    id("pl.allegro.tech.build.axion-release") version "1.18.2"
 }
 
 group = "com.selesse.gradle"
-version = "0.3.0-SNAPSHOT"
+version = scmVersion.version
 
 repositories {
     mavenCentral()
@@ -66,4 +68,25 @@ spotless {
     kotlinGradle {
         ktlint("1.0.1")
     }
+}
+
+scmVersion {
+    tag {
+        prefix.set("v")
+    }
+    nextVersion {
+        suffix.set("SNAPSHOT")
+        separator.set("-")
+    }
+}
+
+changelog {
+    version.set(project.version.toString())
+    path.set(file("CHANGELOG.md").canonicalPath)
+    header.set(provider { "${project.version}" })
+    itemPrefix.set("-")
+    keepUnreleasedSection.set(true)
+    unreleasedTerm.set("[Unreleased]")
+    groups.set(listOf("Added", "Changed", "Deprecated", "Removed", "Fixed", "Security"))
+    combinePreReleases.set(false)
 }

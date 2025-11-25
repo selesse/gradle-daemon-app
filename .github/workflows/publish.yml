@@ -26,11 +26,16 @@ jobs:
         id: get_version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
-      - name: Update version in build.gradle.kts
-        run: sed -i 's/version = ".*"/version = "${{ steps.get_version.outputs.VERSION }}"/' build.gradle.kts
-
       - name: Build plugin
         run: ./gradlew build --no-daemon
+
+      - name: Get Changelog Entry
+        id: changelog
+        run: |
+          CHANGELOG=$(./gradlew getChangelog --no-header --console=plain --quiet | tail -n +2)
+          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Publish plugin
         env:
@@ -41,6 +46,6 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          generate_release_notes: true
+          body: ${{ steps.changelog.outputs.CHANGELOG }}
           files: |
             build/libs/*.jar

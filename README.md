@@ -266,3 +266,67 @@ StandardError=append:/path/to/daemon.log
 [Install]
 WantedBy=default.target
 ```
+
+## Development & Releases
+
+This project uses automated versioning and changelog management for releases.
+
+### Version Management
+
+Versions are automatically derived from git tags using the [Axion Release Plugin](https://github.com/allegro/axion-release-plugin):
+
+- **On a git tag** (e.g., `v0.3.0`): Version is `0.3.0`
+- **Between tags**: Version is `0.3.0-SNAPSHOT` (auto-increments minor version)
+
+Check the current version:
+```bash
+./gradlew currentVersion
+```
+
+### Changelog Management
+
+The project uses the [JetBrains Changelog Plugin](https://github.com/JetBrains/gradle-changelog-plugin) to maintain `CHANGELOG.md`.
+
+#### During Development
+
+Update `CHANGELOG.md` under the `[Unreleased]` section as you make changes:
+
+```markdown
+## [Unreleased]
+
+### Added
+- New feature description
+
+### Fixed
+- Bug fix description
+
+### Changed
+- Breaking change description
+```
+
+Use standard [Keep a Changelog](https://keepachangelog.com/) categories: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`.
+
+#### Creating a Release
+
+1. **Prepare the changelog** (moves `[Unreleased]` to version header):
+   ```bash
+   ./gradlew patchChangelog
+   ```
+
+2. **Commit the changelog**:
+   ```bash
+   git add CHANGELOG.md
+   git commit -m "Release 0.3.0"
+   ```
+
+3. **Tag and push**:
+   ```bash
+   git tag v0.3.0
+   git push origin main --tags
+   ```
+
+4. **CI automatically**:
+   - Derives version from tag (`0.3.0`)
+   - Builds and tests the plugin
+   - Publishes to Gradle Plugin Portal
+   - Creates GitHub release with changelog content
