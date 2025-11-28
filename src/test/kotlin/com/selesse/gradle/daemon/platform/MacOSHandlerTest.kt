@@ -1,6 +1,7 @@
 package com.selesse.gradle.daemon.platform
 
 import com.selesse.gradle.daemon.DaemonAppExtension
+import com.selesse.gradle.daemon.platform.macos.MacOSHandler
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -36,7 +37,7 @@ class MacOSHandlerTest {
 
         val javaHome = "/Library/Java/JavaVirtualMachines/openjdk.jdk/Contents/Home"
 
-        handler.install(project, extension, jarFile, javaHome, project.logger)
+        handler.install(project, extension, jarFile, javaHome)
 
         val plistFile = File(plistPath)
         assertTrue(plistFile.exists(), "Plist file should be created")
@@ -79,7 +80,7 @@ class MacOSHandlerTest {
         val jarFile = tempDir.resolve("test-daemon.jar").toFile()
         jarFile.createNewFile()
 
-        handler.install(project, extension, jarFile, "/path/to/java", project.logger)
+        handler.install(project, extension, jarFile, "/path/to/java")
 
         val content = File(plistPath).readText()
         assertTrue(content.contains("<false/>"), "Should have KeepAlive set to false")

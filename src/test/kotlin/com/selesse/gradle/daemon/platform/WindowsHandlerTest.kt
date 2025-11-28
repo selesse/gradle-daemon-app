@@ -1,6 +1,7 @@
 package com.selesse.gradle.daemon.platform
 
 import com.selesse.gradle.daemon.DaemonAppExtension
+import com.selesse.gradle.daemon.platform.windows.WindowsHandler
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -60,7 +61,7 @@ class WindowsHandlerTest {
         // This won't actually install to Windows startup folder in tests,
         // but we can verify the handler doesn't throw errors
         assertDoesNotThrow {
-            handler.install(project, extension, jarFile, javaHome, project.logger)
+            handler.install(project, extension, jarFile, javaHome)
         }
     }
 }

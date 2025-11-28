@@ -1,6 +1,7 @@
 package com.selesse.gradle.daemon.platform
 
 import com.selesse.gradle.daemon.DaemonAppExtension
+import com.selesse.gradle.daemon.platform.linux.LinuxHandler
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -35,7 +36,7 @@ class LinuxHandlerTest {
 
         val javaHome = "/usr/lib/jvm/java-21-openjdk"
 
-        handler.install(project, extension, jarFile, javaHome, project.logger)
+        handler.install(project, extension, jarFile, javaHome)
 
         val serviceFile = File(servicePath)
         assertTrue(serviceFile.exists(), "Service file should be created")

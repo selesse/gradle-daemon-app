@@ -2,7 +2,6 @@ package com.selesse.gradle.daemon.platform
 
 import com.selesse.gradle.daemon.DaemonAppExtension
 import org.gradle.api.Project
-import org.gradle.api.logging.Logger
 import java.io.File
 
 /**
@@ -17,7 +16,6 @@ interface PlatformHandler {
         extension: DaemonAppExtension,
         jarFile: File,
         javaHome: String,
-        logger: Logger,
     )
 
     /**
@@ -27,7 +25,6 @@ interface PlatformHandler {
     fun start(
         project: Project,
         extension: DaemonAppExtension,
-        logger: Logger,
     ): Long?
 
     /**
@@ -37,7 +34,6 @@ interface PlatformHandler {
     fun stop(
         project: Project,
         extension: DaemonAppExtension,
-        logger: Logger,
     ): Long?
 
     /**
@@ -47,7 +43,6 @@ interface PlatformHandler {
     fun status(
         project: Project,
         extension: DaemonAppExtension,
-        logger: Logger,
     ): DaemonStatus
 
     /**
@@ -57,12 +52,20 @@ interface PlatformHandler {
     fun restart(
         project: Project,
         extension: DaemonAppExtension,
-        logger: Logger,
     ): Pair<Long?, Long?> {
-        val stoppedPid = stop(project, extension, logger)
-        val startedPid = start(project, extension, logger)
+        val stoppedPid = stop(project, extension)
+        val startedPid = start(project, extension)
         return Pair(stoppedPid, startedPid)
     }
+
+    /**
+     * Uninstall the daemon.
+     * Stops the daemon if running, removes configuration files, and cleans up.
+     */
+    fun uninstall(
+        project: Project,
+        extension: DaemonAppExtension,
+    )
 }
 
 data class DaemonStatus(

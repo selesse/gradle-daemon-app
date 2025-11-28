@@ -53,7 +53,7 @@ abstract class DaemonAppPlugin : Plugin<Project> {
                         val launcher = javaToolchainService.launcherFor(toolchain)
                         extension.javaLauncher.convention(launcher)
                     }
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     // Toolchain not configured, will fall back to JAVA_HOME
                 }
             }
