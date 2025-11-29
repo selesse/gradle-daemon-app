@@ -41,9 +41,8 @@ That's it! Your application is now running as a background daemon.
 
 ## Examples
 
-Check out the [examples/](examples/) directory for complete working examples:
-
 - **[file-watcher](examples/file-watcher/)** - A file watcher daemon that monitors a directory for changes and prints events.
+- **[steam-crossplatform-sync](https://github.com/selesse/steam-crossplatform-sync)** - A daemon that tracks Steam game playtime and synchronizes game saves across different computers and platforms using cloud storage.
 
 ## Configuration
 
