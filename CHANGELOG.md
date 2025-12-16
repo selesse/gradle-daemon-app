@@ -18,6 +18,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## 0.3.1
+
+### Fixed
+
+- Java toolchain auto-detection now works correctly
+
 ## 0.3.0
 
 ### Added

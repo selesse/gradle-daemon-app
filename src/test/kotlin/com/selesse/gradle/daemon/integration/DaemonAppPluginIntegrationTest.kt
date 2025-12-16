@@ -174,6 +174,69 @@ class DaemonAppPluginIntegrationTest {
     }
 
     @Test
+    fun `plugin auto-detects java toolchain configuration`(@TempDir tempDir: Path) {
+        val buildFile = tempDir.resolve("build.gradle.kts").toFile()
+        buildFile.writeText(
+            """
+            plugins {
+                id("com.selesse.daemon-app")
+                id("java")
+            }
+
+            java {
+                toolchain {
+                    languageVersion.set(JavaLanguageVersion.of(17))
+                }
+            }
+
+            daemonApp {
+                serviceId.set("com.example.test-daemon")
+            }
+
+            tasks.register<Jar>("shadowJar") {
+                archiveBaseName.set("test-daemon")
+                archiveVersion.set("1.0.0")
+            }
+
+            tasks.register("printJavaLauncher") {
+                doLast {
+                    val extension = project.extensions.getByType(com.selesse.gradle.daemon.DaemonAppExtension::class.java)
+                    if (extension.javaLauncher.isPresent) {
+                        val launcher = extension.javaLauncher.get()
+                        val javaHome = launcher.metadata.installationPath.asFile.absolutePath
+                        println("JAVA_LAUNCHER_DETECTED: ${'$'}javaHome")
+                    } else {
+                        println("JAVA_LAUNCHER_NOT_DETECTED")
+                    }
+                }
+            }
+            """.trimIndent(),
+        )
+
+        val settingsFile = tempDir.resolve("settings.gradle.kts").toFile()
+        settingsFile.writeText(
+            """
+            rootProject.name = "test-daemon"
+            """.trimIndent(),
+        )
+
+        val result = GradleRunner.create()
+            .withProjectDir(tempDir.toFile())
+            .withArguments("printJavaLauncher")
+            .withPluginClasspath()
+            .build()
+
+        assertTrue(
+            result.output.contains("JAVA_LAUNCHER_DETECTED:"),
+            "Should auto-detect java toolchain. Output was: ${result.output}",
+        )
+        assertFalse(
+            result.output.contains("JAVA_LAUNCHER_NOT_DETECTED"),
+            "javaLauncher should be present when toolchain is configured",
+        )
+    }
+
+    @Test
     fun `platform-specific configuration works`(@TempDir tempDir: Path) {
         val buildFile = tempDir.resolve("build.gradle.kts").toFile()
         buildFile.writeText(

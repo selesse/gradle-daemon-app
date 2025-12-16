@@ -48,9 +48,9 @@ abstract class DaemonAppPlugin : Plugin<Project> {
 
             if (!extension.javaLauncher.isPresent) {
                 try {
-                    val toolchain = project.extensions.findByType(org.gradle.jvm.toolchain.JavaToolchainSpec::class.java)
-                    if (toolchain != null) {
-                        val launcher = javaToolchainService.launcherFor(toolchain)
+                    val javaExtension = project.extensions.findByType(org.gradle.api.plugins.JavaPluginExtension::class.java)
+                    if (javaExtension != null) {
+                        val launcher = javaToolchainService.launcherFor(javaExtension.toolchain)
                         extension.javaLauncher.convention(launcher)
                     }
                 } catch (_: Exception) {
