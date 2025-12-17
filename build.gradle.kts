@@ -70,6 +70,12 @@ spotless {
     }
 }
 
+if (System.getenv("CI") == null) {
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+        dependsOn("spotlessApply")
+    }
+}
+
 scmVersion {
     tag {
         prefix.set("v")
