@@ -114,8 +114,33 @@ abstract class DaemonAppExtension @Inject constructor() {
         /**
          * Optional: Use Windows startup folder for auto-start.
          * Default: true
+         *
+         * Note: This is mutually exclusive with [useNSSM]. If both are true,
+         * NSSM takes precedence.
          */
         var useStartupFolder: Boolean = true
+
+        /**
+         * Optional: Use NSSM (Non-Sucking Service Manager) to run as a Windows service.
+         * Default: false
+         *
+         * When enabled, the daemon will be installed as a proper Windows service
+         * using NSSM, with support for automatic restart, service control integration,
+         * and centralized logging.
+         *
+         * NSSM must be installed and available in PATH, or [nssmPath] must be set.
+         *
+         * @see <a href="https://nssm.cc">NSSM Homepage</a>
+         */
+        var useNSSM: Boolean = false
+
+        /**
+         * Optional: Path to the NSSM executable.
+         * Default: "nssm.exe" (assumes NSSM is in PATH)
+         *
+         * Set this if NSSM is installed in a non-standard location.
+         */
+        var nssmPath: String? = null
     }
 
     class LinuxConfig {

@@ -18,9 +18,9 @@ class WindowsHandler(
         jarFile: File,
         javaHome: String,
     ) {
-        if (extension.windows.useStartupFolder) {
-            val config = buildConfig(project, extension, jarFile, javaHome)
-            val actualBackend = backend ?: WindowsStartupHandler(useStartupFolder = true)
+        val actualBackend = backend ?: createBackend(extension)
+        if (extension.windows.useNSSM || extension.windows.useStartupFolder) {
+            val config = buildConfig(project, extension, jarFile, javaHome, actualBackend)
             actualBackend.install(config)
         }
     }
@@ -29,8 +29,8 @@ class WindowsHandler(
         project: Project,
         extension: DaemonAppExtension,
     ): Long? {
-        val config = buildConfig(project, extension)
-        val actualBackend = backend ?: WindowsStartupHandler(useStartupFolder = extension.windows.useStartupFolder)
+        val actualBackend = backend ?: createBackend(extension)
+        val config = buildConfig(project, extension, actualBackend = actualBackend)
         return actualBackend.start(config)
     }
 
@@ -38,8 +38,8 @@ class WindowsHandler(
         project: Project,
         extension: DaemonAppExtension,
     ): Long? {
-        val config = buildConfig(project, extension)
-        val actualBackend = backend ?: WindowsStartupHandler(useStartupFolder = extension.windows.useStartupFolder)
+        val actualBackend = backend ?: createBackend(extension)
+        val config = buildConfig(project, extension, actualBackend = actualBackend)
         return actualBackend.stop(config)
     }
 
@@ -47,8 +47,8 @@ class WindowsHandler(
         project: Project,
         extension: DaemonAppExtension,
     ): DaemonStatus {
-        val config = buildConfig(project, extension)
-        val actualBackend = backend ?: WindowsStartupHandler(useStartupFolder = extension.windows.useStartupFolder)
+        val actualBackend = backend ?: createBackend(extension)
+        val config = buildConfig(project, extension, actualBackend = actualBackend)
         return actualBackend.getStatus(config)
     }
 
@@ -56,8 +56,8 @@ class WindowsHandler(
         project: Project,
         extension: DaemonAppExtension,
     ) {
-        val config = buildConfig(project, extension)
-        val actualBackend = backend ?: WindowsStartupHandler(useStartupFolder = extension.windows.useStartupFolder)
+        val actualBackend = backend ?: createBackend(extension)
+        val config = buildConfig(project, extension, actualBackend = actualBackend)
 
         val status = actualBackend.getStatus(config)
         if (status.running) {
@@ -67,18 +67,31 @@ class WindowsHandler(
         actualBackend.cleanup(config)
     }
 
+    /**
+     * Create the appropriate backend based on configuration.
+     * NSSM takes precedence over startup folder if both are enabled.
+     */
+    private fun createBackend(extension: DaemonAppExtension): DaemonBackend {
+        return if (extension.windows.useNSSM) {
+            WindowsNSSMHandler(nssmPathOverride = extension.windows.nssmPath)
+        } else {
+            WindowsStartupHandler(useStartupFolder = extension.windows.useStartupFolder)
+        }
+    }
+
     private fun buildConfig(
         project: Project,
         extension: DaemonAppExtension,
         jarFile: File? = null,
         javaHome: String? = null,
+        actualBackend: DaemonBackend? = null,
     ): DaemonConfig {
         val actualJarFile = jarFile ?: extension.jarTask.get().archiveFile.get().asFile
         val actualJavaHome = javaHome ?: JavaHomeProvider.get(extension)
 
-        val actualBackend = backend ?: WindowsStartupHandler(useStartupFolder = extension.windows.useStartupFolder)
-        val configPath = actualBackend.getDefaultConfigPath(extension.serviceId.get(), extension.windows)
-        val logPath = actualBackend.getDefaultLogPath(project, extension)
+        val resolvedBackend = actualBackend ?: backend ?: createBackend(extension)
+        val configPath = resolvedBackend.getDefaultConfigPath(extension.serviceId.get(), extension.windows)
+        val logPath = resolvedBackend.getDefaultLogPath(project, extension)
 
         return DaemonConfig(
             serviceId = extension.serviceId.get(),
