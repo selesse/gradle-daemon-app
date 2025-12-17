@@ -5,6 +5,7 @@ import com.selesse.gradle.daemon.process.MockProcessExecutor
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import java.io.File
 import java.nio.file.Path
 
 class WindowsStartupHandlerTest {
@@ -12,18 +13,22 @@ class WindowsStartupHandlerTest {
     @Test
     fun `install with useStartupFolder copies JAR to startup folder`(@TempDir tempDir: Path) {
         val mockExecutor = MockProcessExecutor()
-        val handler = WindowsStartupHandler(processExecutor = mockExecutor, useStartupFolder = true)
+        val startupFolder = tempDir.resolve("startup").toFile()
+        val handler = WindowsStartupHandler(
+            processExecutor = mockExecutor,
+            useStartupFolder = true,
+            startupFolderOverride = startupFolder,
+        )
 
         val jarFile = tempDir.resolve("test-daemon.jar").toFile()
         jarFile.writeText("dummy jar content")
 
         val config = createConfig(tempDir)
 
-        // We can't actually test the copy to the real startup folder,
-        // but we can verify the method doesn't throw
-        assertDoesNotThrow {
-            handler.install(config)
-        }
+        handler.install(config)
+
+        assertTrue(startupFolder.exists())
+        assertTrue(File(startupFolder, "test-daemon.jar").exists())
     }
 
     @Test
@@ -191,15 +196,22 @@ class WindowsStartupHandlerTest {
     @Test
     fun `cleanup with useStartupFolder removes JAR from startup folder`(@TempDir tempDir: Path) {
         val mockExecutor = MockProcessExecutor()
-        val handler = WindowsStartupHandler(processExecutor = mockExecutor, useStartupFolder = true)
+        val startupFolder = tempDir.resolve("startup").toFile()
+        startupFolder.mkdirs()
+        val jarInStartup = File(startupFolder, "test-daemon.jar")
+        jarInStartup.writeText("dummy jar content")
+
+        val handler = WindowsStartupHandler(
+            processExecutor = mockExecutor,
+            useStartupFolder = true,
+            startupFolderOverride = startupFolder,
+        )
 
         val config = createConfig(tempDir)
 
-        // We can't actually test the removal from the real startup folder,
-        // but we can verify the method doesn't throw
-        assertDoesNotThrow {
-            handler.cleanup(config)
-        }
+        assertTrue(jarInStartup.exists())
+        handler.cleanup(config)
+        assertFalse(jarInStartup.exists())
     }
 
     @Test

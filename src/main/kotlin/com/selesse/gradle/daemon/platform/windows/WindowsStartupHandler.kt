@@ -13,8 +13,14 @@ import java.io.File
 class WindowsStartupHandler(
     private val processExecutor: ProcessExecutor = Processes(),
     private val useStartupFolder: Boolean = true,
+    private val startupFolderOverride: File? = null,
 ) : DaemonBackend {
     private val logger = Logging.getLogger(WindowsStartupHandler::class.java)
+
+    private fun getStartupFolder(): File {
+        return startupFolderOverride
+            ?: File(System.getenv("APPDATA"), "Microsoft\\Windows\\Start Menu\\Programs\\Startup")
+    }
 
     override fun getDefaultConfigPath(serviceId: String, platformConfig: Any?): String {
         // Windows startup folder doesn't use a config file
@@ -28,7 +34,7 @@ class WindowsStartupHandler(
 
     override fun install(config: DaemonConfig) {
         if (useStartupFolder) {
-            val startupFolder = File(System.getenv("APPDATA"), "Microsoft\\Windows\\Start Menu\\Programs\\Startup")
+            val startupFolder = getStartupFolder()
             startupFolder.mkdirs()
 
             val destinationFile = File(startupFolder, config.jarFile.name)
@@ -90,7 +96,7 @@ class WindowsStartupHandler(
 
     override fun cleanup(config: DaemonConfig) {
         if (useStartupFolder) {
-            val startupFolder = File(System.getenv("APPDATA"), "Microsoft\\Windows\\Start Menu\\Programs\\Startup")
+            val startupFolder = getStartupFolder()
             val startupJar = File(startupFolder, config.jarFile.name)
             if (startupJar.exists()) {
                 startupJar.delete()
