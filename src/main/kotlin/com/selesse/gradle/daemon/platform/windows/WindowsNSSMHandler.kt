@@ -19,14 +19,34 @@ import java.io.File
  * If NSSM is not found in PATH and no custom path is provided, it will be automatically
  * downloaded to %APPDATA%\gradle-daemon-app\nssm\.
  *
+ * **Important:** This backend requires administrator privileges to install, start, stop,
+ * and remove Windows services. Run Gradle with elevated permissions (Run as Administrator).
+ *
  * @see <a href="https://nssm.cc">NSSM Homepage</a>
  */
 class WindowsNSSMHandler(
     private val processExecutor: ProcessExecutor = Processes(),
     private val nssmPathOverride: String? = null,
     private val nssmProvider: NSSMProvider = NSSMProvider(),
+    private val skipAdminCheck: Boolean = false,
 ) : DaemonBackend {
     private val logger = Logging.getLogger(WindowsNSSMHandler::class.java)
+
+    /**
+     * Checks if the current process has administrator privileges.
+     * Uses "net session" command which only succeeds with admin rights.
+     */
+    private fun requireAdminPrivileges(operation: String) {
+        if (skipAdminCheck) return
+
+        val result = processExecutor.execute(listOf("net", "session"))
+        if (result.exitCode != 0) {
+            throw RuntimeException(
+                "Administrator privileges required to $operation. " +
+                    "Please run Gradle as Administrator (right-click Command Prompt or Terminal → 'Run as administrator').",
+            )
+        }
+    }
 
     private fun getNssmPath(platformConfig: Any?): String {
         // First check for explicit override
@@ -55,6 +75,8 @@ class WindowsNSSMHandler(
     }
 
     override fun install(config: DaemonConfig) {
+        requireAdminPrivileges("install Windows service")
+
         val nssmPath = getNssmPath(null)
         val serviceName = sanitizeServiceName(config.serviceId)
         val javaExe = File(config.javaHome, "bin\\java.exe")
@@ -116,6 +138,8 @@ class WindowsNSSMHandler(
     }
 
     override fun start(config: DaemonConfig): Long? {
+        requireAdminPrivileges("start Windows service")
+
         val nssmPath = getNssmPath(null)
         val serviceName = sanitizeServiceName(config.serviceId)
 
@@ -133,6 +157,8 @@ class WindowsNSSMHandler(
     }
 
     override fun stop(config: DaemonConfig): Long? {
+        requireAdminPrivileges("stop Windows service")
+
         val nssmPath = getNssmPath(null)
         val serviceName = sanitizeServiceName(config.serviceId)
 
@@ -189,6 +215,8 @@ class WindowsNSSMHandler(
     }
 
     override fun cleanup(config: DaemonConfig) {
+        requireAdminPrivileges("remove Windows service")
+
         val nssmPath = getNssmPath(null)
         val serviceName = sanitizeServiceName(config.serviceId)
 

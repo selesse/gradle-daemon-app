@@ -12,10 +12,15 @@ class WindowsNSSMHandlerTest {
     @Test
     fun `install creates NSSM service with correct parameters`(@TempDir tempDir: Path) {
         val mockExecutor = MockProcessExecutor()
+            .mockSuccess(listOf("net", "session"))
             .mockSuccess(listOf("nssm.exe", "install"))
             .mockSuccess(listOf("nssm.exe", "set"))
 
-        val handler = WindowsNSSMHandler(processExecutor = mockExecutor, nssmPathOverride = "nssm.exe")
+        val handler = WindowsNSSMHandler(
+            processExecutor = mockExecutor,
+            nssmPathOverride = "nssm.exe",
+            skipAdminCheck = true,
+        )
         val config = createConfig(tempDir)
 
         handler.install(config)
@@ -32,7 +37,11 @@ class WindowsNSSMHandlerTest {
             .mockSuccess(listOf("nssm.exe", "install"))
             .mockSuccess(listOf("nssm.exe", "set"))
 
-        val handler = WindowsNSSMHandler(processExecutor = mockExecutor, nssmPathOverride = "nssm.exe")
+        val handler = WindowsNSSMHandler(
+            processExecutor = mockExecutor,
+            nssmPathOverride = "nssm.exe",
+            skipAdminCheck = true,
+        )
         val config = createConfig(tempDir, keepAlive = true)
 
         handler.install(config)
@@ -47,7 +56,11 @@ class WindowsNSSMHandlerTest {
             .mockSuccess(listOf("nssm.exe", "install"))
             .mockSuccess(listOf("nssm.exe", "set"))
 
-        val handler = WindowsNSSMHandler(processExecutor = mockExecutor, nssmPathOverride = "nssm.exe")
+        val handler = WindowsNSSMHandler(
+            processExecutor = mockExecutor,
+            nssmPathOverride = "nssm.exe",
+            skipAdminCheck = true,
+        )
         val config = createConfig(tempDir, keepAlive = false)
 
         handler.install(config)
@@ -66,7 +79,11 @@ class WindowsNSSMHandlerTest {
             .mockSuccess(listOf("nssm.exe", "install"))
             .mockSuccess(listOf("nssm.exe", "set"))
 
-        val handler = WindowsNSSMHandler(processExecutor = mockExecutor, nssmPathOverride = "nssm.exe")
+        val handler = WindowsNSSMHandler(
+            processExecutor = mockExecutor,
+            nssmPathOverride = "nssm.exe",
+            skipAdminCheck = true,
+        )
         val config = createConfig(tempDir, logPath = "C:\\logs\\daemon.log")
 
         handler.install(config)
@@ -80,7 +97,11 @@ class WindowsNSSMHandlerTest {
         val mockExecutor = MockProcessExecutor()
             .mockFailure(listOf("nssm.exe", "install"), stderr = "Access denied", exitCode = 1)
 
-        val handler = WindowsNSSMHandler(processExecutor = mockExecutor, nssmPathOverride = "nssm.exe")
+        val handler = WindowsNSSMHandler(
+            processExecutor = mockExecutor,
+            nssmPathOverride = "nssm.exe",
+            skipAdminCheck = true,
+        )
         val config = createConfig(tempDir)
 
         val exception = assertThrows(RuntimeException::class.java) {
@@ -95,7 +116,11 @@ class WindowsNSSMHandlerTest {
             .mockSuccess(listOf("nssm.exe", "start"))
             .mockSuccess(listOf("sc", "queryex"), stdout = "PID                : 12345")
 
-        val handler = WindowsNSSMHandler(processExecutor = mockExecutor, nssmPathOverride = "nssm.exe")
+        val handler = WindowsNSSMHandler(
+            processExecutor = mockExecutor,
+            nssmPathOverride = "nssm.exe",
+            skipAdminCheck = true,
+        )
         val config = createConfig(tempDir)
 
         val pid = handler.start(config)
@@ -109,7 +134,11 @@ class WindowsNSSMHandlerTest {
         val mockExecutor = MockProcessExecutor()
             .mockFailure(listOf("nssm.exe", "start"), stderr = "Service not found", exitCode = 1)
 
-        val handler = WindowsNSSMHandler(processExecutor = mockExecutor, nssmPathOverride = "nssm.exe")
+        val handler = WindowsNSSMHandler(
+            processExecutor = mockExecutor,
+            nssmPathOverride = "nssm.exe",
+            skipAdminCheck = true,
+        )
         val config = createConfig(tempDir)
 
         val pid = handler.start(config)
@@ -124,7 +153,11 @@ class WindowsNSSMHandlerTest {
             .mockSuccess(listOf("sc", "queryex"), stdout = "PID                : 12345")
             .mockSuccess(listOf("nssm.exe", "stop"))
 
-        val handler = WindowsNSSMHandler(processExecutor = mockExecutor, nssmPathOverride = "nssm.exe")
+        val handler = WindowsNSSMHandler(
+            processExecutor = mockExecutor,
+            nssmPathOverride = "nssm.exe",
+            skipAdminCheck = true,
+        )
         val config = createConfig(tempDir)
 
         val pid = handler.stop(config)
@@ -140,7 +173,11 @@ class WindowsNSSMHandlerTest {
             .mockSuccess(listOf("sc", "queryex"), stdout = "PID                : 12345")
             .mockFailure(listOf("nssm.exe", "stop"), stderr = "Service not running", exitCode = 1)
 
-        val handler = WindowsNSSMHandler(processExecutor = mockExecutor, nssmPathOverride = "nssm.exe")
+        val handler = WindowsNSSMHandler(
+            processExecutor = mockExecutor,
+            nssmPathOverride = "nssm.exe",
+            skipAdminCheck = true,
+        )
         val config = createConfig(tempDir)
 
         val pid = handler.stop(config)
@@ -155,7 +192,11 @@ class WindowsNSSMHandlerTest {
             .mockSuccess(listOf("nssm.exe", "get"))
             .mockSuccess(listOf("sc", "queryex"), stdout = "PID                : 12345")
 
-        val handler = WindowsNSSMHandler(processExecutor = mockExecutor, nssmPathOverride = "nssm.exe")
+        val handler = WindowsNSSMHandler(
+            processExecutor = mockExecutor,
+            nssmPathOverride = "nssm.exe",
+            skipAdminCheck = true,
+        )
         val config = createConfig(tempDir)
 
         val status = handler.getStatus(config)
@@ -170,7 +211,11 @@ class WindowsNSSMHandlerTest {
         val mockExecutor = MockProcessExecutor()
             .mockSuccess(listOf("nssm.exe", "status"), stdout = "SERVICE_STOPPED")
 
-        val handler = WindowsNSSMHandler(processExecutor = mockExecutor, nssmPathOverride = "nssm.exe")
+        val handler = WindowsNSSMHandler(
+            processExecutor = mockExecutor,
+            nssmPathOverride = "nssm.exe",
+            skipAdminCheck = true,
+        )
         val config = createConfig(tempDir)
 
         val status = handler.getStatus(config)
@@ -185,7 +230,11 @@ class WindowsNSSMHandlerTest {
         val mockExecutor = MockProcessExecutor()
             .mockSuccess(listOf("nssm.exe", "status"), stdout = "SERVICE_PAUSED")
 
-        val handler = WindowsNSSMHandler(processExecutor = mockExecutor, nssmPathOverride = "nssm.exe")
+        val handler = WindowsNSSMHandler(
+            processExecutor = mockExecutor,
+            nssmPathOverride = "nssm.exe",
+            skipAdminCheck = true,
+        )
         val config = createConfig(tempDir)
 
         val status = handler.getStatus(config)
@@ -200,7 +249,11 @@ class WindowsNSSMHandlerTest {
         val mockExecutor = MockProcessExecutor()
             .mockSuccess(listOf("nssm.exe", "status"), stdout = "Service com_example_test-daemon doesn't exist")
 
-        val handler = WindowsNSSMHandler(processExecutor = mockExecutor, nssmPathOverride = "nssm.exe")
+        val handler = WindowsNSSMHandler(
+            processExecutor = mockExecutor,
+            nssmPathOverride = "nssm.exe",
+            skipAdminCheck = true,
+        )
         val config = createConfig(tempDir)
 
         val status = handler.getStatus(config)
@@ -215,7 +268,11 @@ class WindowsNSSMHandlerTest {
         val mockExecutor = MockProcessExecutor()
             .mockSuccess(listOf("nssm.exe", "remove"))
 
-        val handler = WindowsNSSMHandler(processExecutor = mockExecutor, nssmPathOverride = "nssm.exe")
+        val handler = WindowsNSSMHandler(
+            processExecutor = mockExecutor,
+            nssmPathOverride = "nssm.exe",
+            skipAdminCheck = true,
+        )
         val config = createConfig(tempDir)
 
         handler.cleanup(config)
@@ -232,7 +289,11 @@ class WindowsNSSMHandlerTest {
                 exitCode = 1,
             )
 
-        val handler = WindowsNSSMHandler(processExecutor = mockExecutor, nssmPathOverride = "nssm.exe")
+        val handler = WindowsNSSMHandler(
+            processExecutor = mockExecutor,
+            nssmPathOverride = "nssm.exe",
+            skipAdminCheck = true,
+        )
         val config = createConfig(tempDir)
 
         // Should not throw exception
@@ -243,9 +304,27 @@ class WindowsNSSMHandlerTest {
 
     @Test
     fun `getDefaultConfigPath returns empty string`() {
-        val handler = WindowsNSSMHandler(nssmPathOverride = "nssm.exe")
+        val handler = WindowsNSSMHandler(nssmPathOverride = "nssm.exe", skipAdminCheck = true)
         val path = handler.getDefaultConfigPath("com.example.test-daemon", null)
         assertEquals("", path)
+    }
+
+    @Test
+    fun `install fails with helpful message when not running as admin`(@TempDir tempDir: Path) {
+        val mockExecutor = MockProcessExecutor()
+            .mockFailure(listOf("net", "session"), stderr = "Access is denied.", exitCode = 1)
+
+        val handler = WindowsNSSMHandler(
+            processExecutor = mockExecutor,
+            nssmPathOverride = "nssm.exe",
+        )
+        val config = createConfig(tempDir)
+
+        val exception = assertThrows(RuntimeException::class.java) {
+            handler.install(config)
+        }
+        assertTrue(exception.message!!.contains("Administrator privileges required"))
+        assertTrue(exception.message!!.contains("Run as administrator"))
     }
 
     @Test
@@ -284,7 +363,11 @@ class WindowsNSSMHandlerTest {
             .mockSuccess(listOf("nssm.exe", "install"))
             .mockSuccess(listOf("nssm.exe", "set"))
 
-        val handler = WindowsNSSMHandler(processExecutor = mockExecutor, nssmPathOverride = "nssm.exe")
+        val handler = WindowsNSSMHandler(
+            processExecutor = mockExecutor,
+            nssmPathOverride = "nssm.exe",
+            skipAdminCheck = true,
+        )
         val config = createConfig(tempDir, serviceId = "com.example.my-app.daemon")
 
         handler.install(config)
@@ -298,7 +381,11 @@ class WindowsNSSMHandlerTest {
             .mockSuccess(listOf("nssm.exe", "install"))
             .mockSuccess(listOf("nssm.exe", "set"))
 
-        val handler = WindowsNSSMHandler(processExecutor = mockExecutor, nssmPathOverride = "nssm.exe")
+        val handler = WindowsNSSMHandler(
+            processExecutor = mockExecutor,
+            nssmPathOverride = "nssm.exe",
+            skipAdminCheck = true,
+        )
         val config = createConfig(tempDir, jvmArgs = listOf("-Xmx512m", "-Xms256m"))
 
         handler.install(config)
@@ -320,7 +407,11 @@ class WindowsNSSMHandlerTest {
             .mockSuccess(listOf("nssm.exe", "install"))
             .mockSuccess(listOf("nssm.exe", "set"))
 
-        val handler = WindowsNSSMHandler(processExecutor = mockExecutor, nssmPathOverride = "nssm.exe")
+        val handler = WindowsNSSMHandler(
+            processExecutor = mockExecutor,
+            nssmPathOverride = "nssm.exe",
+            skipAdminCheck = true,
+        )
         val config = createConfig(tempDir, appArgs = listOf("--config", "app.yml"))
 
         handler.install(config)
@@ -355,7 +446,11 @@ class WindowsNSSMHandlerTest {
                 """.trimIndent(),
             )
 
-        val handler = WindowsNSSMHandler(processExecutor = mockExecutor, nssmPathOverride = "nssm.exe")
+        val handler = WindowsNSSMHandler(
+            processExecutor = mockExecutor,
+            nssmPathOverride = "nssm.exe",
+            skipAdminCheck = true,
+        )
         val config = createConfig(tempDir)
 
         val pid = handler.start(config)
@@ -369,7 +464,11 @@ class WindowsNSSMHandlerTest {
             .mockSuccess(listOf("nssm.exe", "start"))
             .mockFailure(listOf("sc", "queryex"), stderr = "Service not found", exitCode = 1)
 
-        val handler = WindowsNSSMHandler(processExecutor = mockExecutor, nssmPathOverride = "nssm.exe")
+        val handler = WindowsNSSMHandler(
+            processExecutor = mockExecutor,
+            nssmPathOverride = "nssm.exe",
+            skipAdminCheck = true,
+        )
         val config = createConfig(tempDir)
 
         val pid = handler.start(config)
