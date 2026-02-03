@@ -11,6 +11,13 @@ abstract class InstallDaemonTask : DefaultTask() {
     @TaskAction
     fun install() {
         val extension = project.extensions.getByType(DaemonAppExtension::class.java)
+        val handler = PlatformHandlerFactory.create()
+
+        val status = handler.status(project, extension)
+        if (status.running) {
+            logger.lifecycle("Stopping existing daemon (PID: ${status.pid ?: "unknown"})...")
+            handler.stop(project, extension)
+        }
 
         val jarTask = extension.jarTask.get()
         val jarFile = jarTask.archiveFile.get().asFile
@@ -26,7 +33,6 @@ abstract class InstallDaemonTask : DefaultTask() {
         val javaHome = JavaHomeProvider.get(extension)
         logger.lifecycle("Using Java home: $javaHome")
 
-        val handler = PlatformHandlerFactory.create()
         handler.install(project, extension, releasedJar, javaHome)
 
         logger.lifecycle("Starting daemon...")

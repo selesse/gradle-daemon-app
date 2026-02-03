@@ -235,6 +235,30 @@ class MacOSPlistHandlerTest {
         assertEquals(expectedPath, path)
     }
 
+    @Test
+    fun `reinstall stops running daemon before updating`(@TempDir tempDir: Path) {
+        val mockExecutor = MockProcessExecutor()
+            // Status check shows daemon is running
+            .mockSuccess(listOf("launchctl", "list"), stdout = "12345\t0\tcom.example.test-daemon\n")
+            // Stop succeeds
+            .mockSuccess(listOf("launchctl", "unload"), stdout = "")
+            // Start succeeds
+            .mockSuccess(listOf("launchctl", "load"), stdout = "")
+
+        val handler = MacOSPlistHandler(processExecutor = mockExecutor)
+        val config = createConfig(tempDir)
+
+        // Simulate the installDaemon flow: check status, stop if running, install, start
+        val status = handler.getStatus(config)
+        if (status.running) {
+            handler.stop(config)
+        }
+        handler.install(config)
+        handler.start(config)
+
+        assertTrue(mockExecutor.wasExecuted(listOf("launchctl", "unload")), "Should stop daemon before reinstall")
+    }
+
     private fun createConfig(
         tempDir: Path,
         configPath: String = tempDir.resolve("test.plist").toString(),
