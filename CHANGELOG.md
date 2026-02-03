@@ -18,6 +18,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## 0.3.2
+
+### Fixed
+
+- `installDaemon` now properly stops and restarts running daemons before updating the JAR. Previously, `launchctl load` (macOS) and `systemctl start` (Linux) would silently return success without restarting, leaving the old JAR running.
+
 ## 0.3.1
 
 ### Fixed

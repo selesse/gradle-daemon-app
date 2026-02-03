@@ -17,7 +17,7 @@ A Gradle plugin for installing and managing Java applications as persistent back
 ```kotlin
 plugins {
     id("com.gradleup.shadow") version "9.3.0"
-    id("com.selesse.daemon-app") version "0.3.1"
+    id("com.selesse.daemon-app") version "0.3.2"
 }
 ```
 
