@@ -18,6 +18,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## 0.4.1
+
+### Fixed
+
+- Windows service now correctly resolves user-specific paths (APPDATA, LOCALAPPDATA, USERPROFILE) when running as LocalSystem. The installing user's environment variables are embedded in the WinSW XML at install time.
+
 ## 0.4.0
 
 ### Added
