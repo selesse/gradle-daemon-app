@@ -18,6 +18,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## 0.4.0
+
+### Added
+
+- Windows service backend using WinSW, replacing the Startup folder approach. WinSW is bundled in the plugin JAR — no network access required at install time. The daemon runs as a proper Windows service with auto-restart and boot persistence.
+
+### Changed
+
+- `windows { }` DSL now uses a builder style: `winsw { }` (default) or `startupFolder()`, matching the style of `macOS { }` and `linux { }`
+
 ## 0.3.2
 
 ### Fixed

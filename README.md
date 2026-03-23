@@ -17,7 +17,7 @@ A Gradle plugin for installing and managing Java applications as persistent back
 ```kotlin
 plugins {
     id("com.gradleup.shadow") version "9.3.0"
-    id("com.selesse.daemon-app") version "0.3.2"
+    id("com.selesse.daemon-app") version "0.4.0"
 }
 ```
 
@@ -110,8 +110,19 @@ daemonApp {
 ```kotlin
 daemonApp {
     windows {
-        // Use startup folder for auto-start (default: true)
-        useStartupFolder = true
+        // Use WinSW as the service backend (default). Creates a proper Windows service
+        // that auto-starts on boot. Requires elevation for install/uninstall.
+        winsw {
+            // Optional: path to a custom WinSW executable (default: bundled binary)
+            executable = "C:/tools/WinSW.exe"
+            // Optional: display name for the Windows service (default: serviceId)
+            serviceDisplayName = "My Daemon"
+            // Optional: description for the Windows service
+            serviceDescription = "My background daemon service"
+        }
+
+        // Alternatively, use the legacy Startup folder backend (no elevation required)
+        startupFolder()
     }
 }
 ```
@@ -238,11 +249,9 @@ The plugin generates a LaunchAgent plist file and installs it to `~/Library/Laun
 </plist>
 ```
 
-### Windows (Startup Folder)
+### Windows (WinSW)
 
-The plugin copies the JAR to the Windows startup folder and manages the process using `javaw.exe`.
-
-**Startup folder:** `%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup`
+The plugin installs the daemon as a proper Windows service using [WinSW](https://github.com/winsw/winsw), which is bundled in the plugin JAR. Install and uninstall require an elevated (Administrator) terminal. The legacy Startup folder backend is available via `startupFolder()` in the `windows { }` block.
 
 ### Linux (systemd)
 
