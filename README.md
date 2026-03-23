@@ -329,7 +329,7 @@ Use standard [Keep a Changelog](https://keepachangelog.com/) categories: `Added`
 
 3. **Tag and push**:
    ```bash
-   git tag v0.3.0
+   git tag -a v0.4.0 -m "Release 0.4.0"
    git push origin main --tags
    ```
 
