@@ -20,7 +20,6 @@ dependencies {
     implementation(kotlin("stdlib"))
 
     testImplementation("org.assertj:assertj-core:3.24.2")
-    testImplementation(gradleTestKit())
 }
 
 java {
@@ -53,7 +52,31 @@ testing {
         val test by getting(JvmTestSuite::class) {
             useJUnitJupiter("5.10.1")
         }
+
+        val integrationTest by registering(JvmTestSuite::class) {
+            useJUnitJupiter("5.10.1")
+
+            dependencies {
+                implementation(project())
+                implementation("org.assertj:assertj-core:3.24.2")
+                implementation(gradleTestKit())
+            }
+
+            targets {
+                all {
+                    testTask.configure {
+                        shouldRunAfter(test)
+                    }
+                }
+            }
+        }
     }
+}
+
+gradlePlugin.testSourceSets(sourceSets["integrationTest"])
+
+tasks.named("check") {
+    dependsOn(testing.suites.named("integrationTest"))
 }
 
 spotless {

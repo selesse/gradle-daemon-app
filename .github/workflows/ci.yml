@@ -32,7 +32,7 @@ jobs:
         if: always()
         with:
           name: test-results-${{ matrix.os }}
-          path: build/reports/tests/test/
+          path: build/reports/tests/*/
 
       - name: Build example projects
         if: matrix.os == 'ubuntu-latest'
