@@ -1,6 +1,7 @@
 package com.selesse.gradle.daemon.platform.windows
 
 import com.selesse.gradle.daemon.DaemonAppExtension
+import com.selesse.gradle.daemon.DaemonAppExtension.WindowsConfig.Backend
 import com.selesse.gradle.daemon.platform.DaemonBackend
 import com.selesse.gradle.daemon.platform.DaemonConfig
 import com.selesse.gradle.daemon.platform.DaemonStatus
@@ -18,11 +19,8 @@ class WindowsHandler(
         jarFile: File,
         javaHome: String,
     ) {
-        if (extension.windows.useStartupFolder) {
-            val config = buildConfig(project, extension, jarFile, javaHome)
-            val actualBackend = backend ?: WindowsStartupHandler(useStartupFolder = true)
-            actualBackend.install(config)
-        }
+        val config = buildConfig(project, extension, jarFile, javaHome)
+        selectBackend(extension).install(config)
     }
 
     override fun start(
@@ -30,8 +28,7 @@ class WindowsHandler(
         extension: DaemonAppExtension,
     ): Long? {
         val config = buildConfig(project, extension)
-        val actualBackend = backend ?: WindowsStartupHandler(useStartupFolder = extension.windows.useStartupFolder)
-        return actualBackend.start(config)
+        return selectBackend(extension).start(config)
     }
 
     override fun stop(
@@ -39,8 +36,7 @@ class WindowsHandler(
         extension: DaemonAppExtension,
     ): Long? {
         val config = buildConfig(project, extension)
-        val actualBackend = backend ?: WindowsStartupHandler(useStartupFolder = extension.windows.useStartupFolder)
-        return actualBackend.stop(config)
+        return selectBackend(extension).stop(config)
     }
 
     override fun status(
@@ -48,8 +44,7 @@ class WindowsHandler(
         extension: DaemonAppExtension,
     ): DaemonStatus {
         val config = buildConfig(project, extension)
-        val actualBackend = backend ?: WindowsStartupHandler(useStartupFolder = extension.windows.useStartupFolder)
-        return actualBackend.getStatus(config)
+        return selectBackend(extension).getStatus(config)
     }
 
     override fun uninstall(
@@ -57,7 +52,7 @@ class WindowsHandler(
         extension: DaemonAppExtension,
     ) {
         val config = buildConfig(project, extension)
-        val actualBackend = backend ?: WindowsStartupHandler(useStartupFolder = extension.windows.useStartupFolder)
+        val actualBackend = selectBackend(extension)
 
         val status = actualBackend.getStatus(config)
         if (status.running) {
@@ -65,6 +60,17 @@ class WindowsHandler(
         }
 
         actualBackend.cleanup(config)
+    }
+
+    private fun selectBackend(extension: DaemonAppExtension): DaemonBackend {
+        return backend ?: when (val b = extension.windows.backend) {
+            is Backend.WinSW -> WindowsWinswHandler(
+                winswExecutablePath = b.config.executable,
+                serviceDisplayName = b.config.serviceDisplayName,
+                serviceDescription = b.config.serviceDescription,
+            )
+            is Backend.StartupFolder -> WindowsStartupHandler()
+        }
     }
 
     private fun buildConfig(
@@ -76,7 +82,7 @@ class WindowsHandler(
         val actualJarFile = jarFile ?: extension.jarTask.get().archiveFile.get().asFile
         val actualJavaHome = javaHome ?: JavaHomeProvider.get(extension)
 
-        val actualBackend = backend ?: WindowsStartupHandler(useStartupFolder = extension.windows.useStartupFolder)
+        val actualBackend = selectBackend(extension)
         val configPath = actualBackend.getDefaultConfigPath(extension.serviceId.get(), extension.windows)
         val logPath = actualBackend.getDefaultLogPath(project, extension)
 

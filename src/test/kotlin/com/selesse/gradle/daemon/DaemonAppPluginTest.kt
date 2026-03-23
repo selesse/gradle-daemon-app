@@ -109,10 +109,14 @@ class DaemonAppPluginTest {
         val extension = project.extensions.getByType(DaemonAppExtension::class.java)
 
         extension.windows {
-            useStartupFolder = false
+            winsw {
+                serviceDisplayName = "My Service"
+            }
         }
 
-        assertFalse(extension.windows.useStartupFolder)
+        val backend = extension.windows.backend as? DaemonAppExtension.WindowsConfig.Backend.WinSW
+        assertNotNull(backend, "Expected WinSW backend")
+        assertEquals("My Service", backend?.config?.serviceDisplayName)
     }
 
     @Test

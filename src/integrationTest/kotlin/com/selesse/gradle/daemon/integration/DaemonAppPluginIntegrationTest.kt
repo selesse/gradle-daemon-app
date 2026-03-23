@@ -259,7 +259,7 @@ class DaemonAppPluginIntegrationTest {
                 }
 
                 windows {
-                    useStartupFolder = false
+                    startupFolder()
                 }
             }
 

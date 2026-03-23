@@ -111,11 +111,39 @@ abstract class DaemonAppExtension @Inject constructor() {
     }
 
     class WindowsConfig {
+        internal sealed class Backend {
+            data class WinSW(val config: WinSWConfig) : Backend()
+            object StartupFolder : Backend()
+        }
+
+        internal var backend: Backend = Backend.WinSW(WinSWConfig())
+
         /**
-         * Optional: Use Windows startup folder for auto-start.
-         * Default: true
+         * Use WinSW as the service backend (default). Creates a proper Windows service that
+         * auto-starts on boot and survives reboots. Requires elevation for install/uninstall.
          */
-        var useStartupFolder: Boolean = true
+        fun winsw(configure: WinSWConfig.() -> Unit = {}) {
+            backend = Backend.WinSW(WinSWConfig().apply(configure))
+        }
+
+        /**
+         * Use the Windows Startup folder as the service backend (legacy). The daemon starts
+         * when the user logs in. Does not require elevation.
+         */
+        fun startupFolder() {
+            backend = Backend.StartupFolder
+        }
+
+        class WinSWConfig {
+            /** Optional: Path to a custom WinSW executable. If not set, the bundled binary is used. */
+            var executable: String? = null
+
+            /** Optional: Display name for the Windows service. Defaults to serviceId. */
+            var serviceDisplayName: String? = null
+
+            /** Optional: Description for the Windows service. Defaults to "{serviceId} Daemon Service". */
+            var serviceDescription: String? = null
+        }
     }
 
     class LinuxConfig {
