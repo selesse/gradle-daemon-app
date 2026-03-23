@@ -34,7 +34,7 @@ daemonApp {
 ### 3. Install and run
 
 ```bash
-./gradlew installDaemon
+./gradlew daemonInstall
 ```
 
 That's it! Your application is now running as a background daemon.
@@ -146,12 +146,12 @@ daemonApp {
 
 The plugin provides six tasks in the `daemon` group:
 
-### installDaemon
+### daemonInstall
 
 Builds the JAR, installs platform-specific configuration, and starts/restarts the daemon.
 
 ```bash
-./gradlew installDaemon
+./gradlew daemonInstall
 ```
 
 **Output:**
@@ -166,28 +166,28 @@ Started new daemon with PID: 12345
 ✓ Daemon installation complete
 ```
 
-### startDaemon
+### daemonStart
 
 Starts the daemon (fails if already running).
 
 ```bash
-./gradlew startDaemon
+./gradlew daemonStart
 ```
 
-### stopDaemon
+### daemonStop
 
 Stops the running daemon.
 
 ```bash
-./gradlew stopDaemon
+./gradlew daemonStop
 ```
 
-### restartDaemon
+### daemonRestart
 
 Stops and restarts the daemon.
 
 ```bash
-./gradlew restartDaemon
+./gradlew daemonRestart
 ```
 
 ### daemonStatus
@@ -209,12 +209,12 @@ Daemon Status:
   Details: Daemon is running as LaunchAgent
 ```
 
-### uninstallDaemon
+### daemonUninstall
 
 Stops the daemon and removes all configuration files.
 
 ```bash
-./gradlew uninstallDaemon
+./gradlew daemonUninstall
 ```
 
 ## Platform Details

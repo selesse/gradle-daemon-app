@@ -161,7 +161,7 @@ class WindowsWinswHandlerTest {
         }
 
         assertTrue(exception.message?.contains("not found") == true)
-        assertTrue(exception.message?.contains("installDaemon") == true)
+        assertTrue(exception.message?.contains("daemonInstall") == true)
     }
 
     @Test

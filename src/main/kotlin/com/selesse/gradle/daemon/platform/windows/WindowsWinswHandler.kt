@@ -61,7 +61,7 @@ class WindowsWinswHandler(
                 result.stderr.contains("Access is denied") || result.stdout.contains("Access is denied") ->
                     throw RuntimeException(
                         "Access denied installing Windows service. " +
-                            "Please re-run installDaemon from an elevated (Administrator) terminal.",
+                            "Please re-run daemonInstall from an elevated (Administrator) terminal.",
                     )
                 else -> {
                     logger.warn("WinSW install output: ${result.stdout}")
@@ -76,7 +76,7 @@ class WindowsWinswHandler(
         val winswExe = File(releaseDir, "${config.serviceId}.exe")
 
         if (!winswExe.exists()) {
-            throw RuntimeException("WinSW executable not found at ${winswExe.absolutePath}. Please run installDaemon first.")
+            throw RuntimeException("WinSW executable not found at ${winswExe.absolutePath}. Please run daemonInstall first.")
         }
 
         val result = processExecutor.execute(listOf(winswExe.absolutePath, "start"))
@@ -129,7 +129,7 @@ class WindowsWinswHandler(
         if (!winswExe.exists()) {
             return DaemonStatus(
                 running = false,
-                details = "WinSW not installed (run installDaemon from an Administrator terminal)",
+                details = "WinSW not installed (run daemonInstall from an Administrator terminal)",
                 configPath = config.configPath,
                 logPath = config.logPath,
             )

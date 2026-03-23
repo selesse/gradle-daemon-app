@@ -248,7 +248,7 @@ class MacOSPlistHandlerTest {
         val handler = MacOSPlistHandler(processExecutor = mockExecutor)
         val config = createConfig(tempDir)
 
-        // Simulate the installDaemon flow: check status, stop if running, install, start
+        // Simulate the daemonInstall flow: check status, stop if running, install, start
         val status = handler.getStatus(config)
         if (status.running) {
             handler.stop(config)

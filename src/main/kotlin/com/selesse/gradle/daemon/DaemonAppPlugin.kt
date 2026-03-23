@@ -66,22 +66,22 @@ abstract class DaemonAppPlugin : Plugin<Project> {
             }
         }
 
-        val installDaemon = project.tasks.register("installDaemon", InstallDaemonTask::class.java) {
+        val daemonInstall = project.tasks.register("daemonInstall", InstallDaemonTask::class.java) {
             group = "daemon"
             description = "Install and restart the daemon application"
         }
 
-        project.tasks.register("startDaemon", StartDaemonTask::class.java) {
+        project.tasks.register("daemonStart", StartDaemonTask::class.java) {
             group = "daemon"
             description = "Start the daemon application"
         }
 
-        project.tasks.register("stopDaemon", StopDaemonTask::class.java) {
+        project.tasks.register("daemonStop", StopDaemonTask::class.java) {
             group = "daemon"
             description = "Stop the daemon application"
         }
 
-        project.tasks.register("restartDaemon", RestartDaemonTask::class.java) {
+        project.tasks.register("daemonRestart", RestartDaemonTask::class.java) {
             group = "daemon"
             description = "Restart the daemon application"
         }
@@ -96,14 +96,14 @@ abstract class DaemonAppPlugin : Plugin<Project> {
             description = "Print the daemon application logs"
         }
 
-        project.tasks.register("uninstallDaemon", UninstallDaemonTask::class.java) {
+        project.tasks.register("daemonUninstall", UninstallDaemonTask::class.java) {
             group = "daemon"
             description = "Uninstall the daemon application"
         }
 
         project.afterEvaluate {
             val jarTask = extension.jarTask.get()
-            installDaemon.configure { dependsOn(jarTask) }
+            daemonInstall.configure { dependsOn(jarTask) }
         }
     }
 }

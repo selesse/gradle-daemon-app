@@ -29,13 +29,13 @@ class DaemonAppPluginTest {
         project.pluginManager.apply("com.selesse.daemon-app")
 
         val expectedTasks = listOf(
-            "installDaemon",
-            "startDaemon",
-            "stopDaemon",
-            "restartDaemon",
+            "daemonInstall",
+            "daemonStart",
+            "daemonStop",
+            "daemonRestart",
             "daemonStatus",
             "daemonLogs",
-            "uninstallDaemon",
+            "daemonUninstall",
         )
 
         for (taskName in expectedTasks) {

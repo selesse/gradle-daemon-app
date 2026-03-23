@@ -16,7 +16,7 @@ The file watcher daemon:
 ### Install and Start the Daemon
 
 ```bash
-./gradlew installDaemon
+./gradlew daemonInstall
 ```
 
 ## Testing the File Watcher

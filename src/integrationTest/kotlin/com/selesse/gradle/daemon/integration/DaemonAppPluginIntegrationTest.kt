@@ -44,12 +44,12 @@ class DaemonAppPluginIntegrationTest {
             .withPluginClasspath()
             .build()
 
-        assertTrue(result.output.contains("installDaemon"), "Should have installDaemon task")
-        assertTrue(result.output.contains("startDaemon"), "Should have startDaemon task")
-        assertTrue(result.output.contains("stopDaemon"), "Should have stopDaemon task")
-        assertTrue(result.output.contains("restartDaemon"), "Should have restartDaemon task")
+        assertTrue(result.output.contains("daemonInstall"), "Should have daemonInstall task")
+        assertTrue(result.output.contains("daemonStart"), "Should have daemonStart task")
+        assertTrue(result.output.contains("daemonStop"), "Should have daemonStop task")
+        assertTrue(result.output.contains("daemonRestart"), "Should have daemonRestart task")
         assertTrue(result.output.contains("daemonStatus"), "Should have daemonStatus task")
-        assertTrue(result.output.contains("uninstallDaemon"), "Should have uninstallDaemon task")
+        assertTrue(result.output.contains("daemonUninstall"), "Should have daemonUninstall task")
     }
 
     @Test
@@ -72,7 +72,7 @@ class DaemonAppPluginIntegrationTest {
 
         val result = GradleRunner.create()
             .withProjectDir(tempDir.toFile())
-            .withArguments("installDaemon")
+            .withArguments("daemonInstall")
             .withPluginClasspath()
             .buildAndFail()
 
