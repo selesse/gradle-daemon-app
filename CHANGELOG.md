@@ -18,6 +18,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## 0.5.0
+
+### Changed
+
+- Renamed tasks to use a consistent `daemon` prefix: `daemonInstall`, `daemonStart`, `daemonStop`, `daemonRestart`, `daemonUninstall` (previously `installDaemon`, `startDaemon`, etc.)
+
 ## 0.4.1
 
 ### Fixed
