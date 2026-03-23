@@ -314,6 +314,28 @@ class WindowsWinswHandlerTest {
     }
 
     @Test
+    fun `install injects user environment variables for LocalSystem compatibility`(@TempDir tempDir: Path) {
+        val mockExecutor = MockProcessExecutor()
+            .mockSuccess(listOf("winsw.exe", "install"), stdout = "Service installed")
+
+        val winswExe = tempDir.resolve("test-daemon.exe").toFile()
+        winswExe.writeText("fake winsw")
+
+        createHandler(mockExecutor, winswExecutablePath = winswExe.absolutePath).install(createConfig(tempDir))
+
+        val content = File(createConfig(tempDir).configPath).readText()
+        listOf("LOCALAPPDATA", "APPDATA", "USERPROFILE").forEach { key ->
+            val value = System.getenv(key)
+            if (value != null) {
+                assertTrue(
+                    content.contains("<env name=\"$key\" value=\"$value\"/>"),
+                    "XML should inject $key env var for LocalSystem compatibility",
+                )
+            }
+        }
+    }
+
+    @Test
     fun `getDefaultConfigPath returns correct path`() {
         val handler = WindowsWinswHandler()
         val serviceId = "com.example.test-daemon"

@@ -243,6 +243,14 @@ class WindowsWinswHandler(
             }
             appendLine("  <arguments>$allArgs</arguments>")
 
+            // Inject user environment variables captured at install time so the service
+            // (which runs as LocalSystem) sees the correct user-specific paths.
+            listOf("LOCALAPPDATA", "APPDATA", "USERPROFILE").forEach { key ->
+                System.getenv(key)?.let { value ->
+                    appendLine("  <env name=\"$key\" value=\"$value\"/>")
+                }
+            }
+
             appendLine("  <log mode=\"roll\">")
             appendLine("  </log>")
 
