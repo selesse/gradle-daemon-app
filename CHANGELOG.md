@@ -18,19 +18,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
-## 0.5.0
+## [0.5.0]
 
 ### Changed
 
 - Renamed tasks to use a consistent `daemon` prefix: `daemonInstall`, `daemonStart`, `daemonStop`, `daemonRestart`, `daemonUninstall` (previously `installDaemon`, `startDaemon`, etc.)
 
-## 0.4.1
+## [0.4.1]
 
 ### Fixed
 
 - Windows service now correctly resolves user-specific paths (APPDATA, LOCALAPPDATA, USERPROFILE) when running as LocalSystem. The installing user's environment variables are embedded in the WinSW XML at install time.
 
-## 0.4.0
+## [0.4.0]
 
 ### Added
 
@@ -40,19 +40,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `windows { }` DSL now uses a builder style: `winsw { }` (default) or `startupFolder()`, matching the style of `macOS { }` and `linux { }`
 
-## 0.3.2
+## [0.3.2]
 
 ### Fixed
 
 - `installDaemon` now properly stops and restarts running daemons before updating the JAR. Previously, `launchctl load` (macOS) and `systemctl start` (Linux) would silently return success without restarting, leaving the old JAR running.
 
-## 0.3.1
+## [0.3.1]
 
 ### Fixed
 
 - Java toolchain auto-detection now works correctly
 
-## 0.3.0
+## [0.3.0]
 
 ### Added
 
@@ -91,6 +91,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PID tracking and status reporting
 - Auto-restart/keep-alive functionality
 
+[Unreleased]: https://github.com/selesse/gradle-daemon-app/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/selesse/gradle-daemon-app/compare/v0.4.1...v0.5.0
+[0.4.1]: https://github.com/selesse/gradle-daemon-app/compare/v0.4.0...v0.4.1
+[0.4.0]: https://github.com/selesse/gradle-daemon-app/compare/v0.3.2...v0.4.0
+[0.3.2]: https://github.com/selesse/gradle-daemon-app/compare/v0.3.1...v0.3.2
+[0.3.1]: https://github.com/selesse/gradle-daemon-app/compare/v0.3.0...v0.3.1
+[0.3.0]: https://github.com/selesse/gradle-daemon-app/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/selesse/gradle-daemon-app/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/selesse/gradle-daemon-app/releases/tag/v0.1.0
-[Unreleased]: https://github.com/selesse/gradle-daemon-app/compare/v0.2.0...HEAD

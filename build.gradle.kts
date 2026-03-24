@@ -118,4 +118,5 @@ changelog {
     unreleasedTerm.set("[Unreleased]")
     groups.set(listOf("Added", "Changed", "Deprecated", "Removed", "Fixed", "Security"))
     combinePreReleases.set(false)
+    repositoryUrl.set("https://github.com/selesse/gradle-daemon-app")
 }
