@@ -1,3 +1,5 @@
+import java.security.MessageDigest
+
 plugins {
     `kotlin-dsl`
     `java-gradle-plugin`
@@ -75,8 +77,49 @@ testing {
 
 gradlePlugin.testSourceSets(sourceSets["integrationTest"])
 
+// WinSW binary bundled at src/main/resources/windows/WinSW.exe
+// Downloaded from: https://github.com/winsw/winsw/releases/download/v3.0.0-alpha.11/WinSW-net461.exe
+// WinSW does not publish checksums with its releases. The SHA-256 below was computed locally
+// at the time the binary was added and serves as a pin against accidental corruption or
+// substitution within this repo — not as verification of the upstream source.
+val winswVersion = "v3.0.0-alpha.11"
+val winswAsset = "WinSW-net461.exe"
+val winswExpectedSha256 = "91bce26b4fa3a7534e7967c1804d7417737b7169014435e5b3b31924bf19f3ee"
+
+tasks.register("verifyWinswChecksum") {
+    group = "verification"
+    description = "Verifies the bundled WinSW.exe SHA-256 matches the checksum recorded when the binary was added"
+
+    val winswExe = file("src/main/resources/windows/WinSW.exe")
+
+    doLast {
+        val digest = MessageDigest.getInstance("SHA-256")
+        winswExe.inputStream().use { stream ->
+            val buffer = ByteArray(8192)
+            var bytesRead: Int
+            while (stream.read(buffer).also { bytesRead = it } != -1) {
+                digest.update(buffer, 0, bytesRead)
+            }
+        }
+        val actualSha256 = digest.digest().joinToString("") { b -> "%02x".format(b.toInt() and 0xFF) }
+
+        check(actualSha256 == winswExpectedSha256) {
+            "WinSW checksum mismatch!\n" +
+                "  Expected : $winswExpectedSha256\n" +
+                "  Actual   : $actualSha256\n" +
+                "  File     : ${winswExe.absolutePath}"
+        }
+
+        logger.lifecycle("WinSW checksum verified")
+        logger.lifecycle("  Version  : $winswVersion ($winswAsset)")
+        logger.lifecycle("  SHA-256  : $actualSha256")
+        logger.lifecycle("  Release  : https://github.com/winsw/winsw/releases/tag/$winswVersion")
+    }
+}
+
 tasks.named("check") {
     dependsOn(testing.suites.named("integrationTest"))
+    dependsOn("verifyWinswChecksum")
 }
 
 spotless {
