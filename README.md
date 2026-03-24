@@ -2,9 +2,13 @@
 
 A Gradle plugin for installing and managing Java applications as persistent background daemons across macOS, Windows, and Linux.
 
+[![Gradle Plugin Portal](https://img.shields.io/gradle-plugin-portal/v/com.selesse.daemon-app)](https://plugins.gradle.org/plugin/com.selesse.daemon-app)
+[![CI](https://github.com/selesse/gradle-daemon-app/actions/workflows/ci.yml/badge.svg)](https://github.com/selesse/gradle-daemon-app/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+
 ## Features
 
-- 🚀 **Cross-platform daemon management** - Works on macOS (LaunchAgent), Windows (Startup), and Linux (systemd)
+- 🚀 **Cross-platform daemon management** - Works on macOS (LaunchAgent), Windows (WinSW), and Linux (systemd)
 - 🔄 **Complete lifecycle management** - Install, start, stop, restart, uninstall, and status commands
 - 🎯 **Smart defaults** - Auto-detects shadowJar, uses Gradle toolchain for Java home
 - 📝 **Detailed logging** - Shows PIDs, config paths, and log file locations
@@ -17,7 +21,7 @@ A Gradle plugin for installing and managing Java applications as persistent back
 ```kotlin
 plugins {
     id("com.gradleup.shadow") version "9.3.0"
-    id("com.selesse.daemon-app") version "0.4.1"
+    id("com.selesse.daemon-app") version "0.5.0"
 }
 ```
 
