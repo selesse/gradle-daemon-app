@@ -8,8 +8,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `trackVersion` option (enabled by default): records the project's git SHA at install time and displays it in `daemonStatus`. Set `trackVersion = false` to disable.
-
 ### Changed
 
 ### Deprecated
@@ -19,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 ### Security
+
+## [0.6.0]
+
+### Added
+
+- `trackVersion` option (enabled by default): records the project's git SHA at install time and displays it in `daemonStatus`. Set `trackVersion = false` to disable.
 
 ## [0.5.0]
 
@@ -93,7 +97,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PID tracking and status reporting
 - Auto-restart/keep-alive functionality
 
-[Unreleased]: https://github.com/selesse/gradle-daemon-app/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/selesse/gradle-daemon-app/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/selesse/gradle-daemon-app/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/selesse/gradle-daemon-app/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/selesse/gradle-daemon-app/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/selesse/gradle-daemon-app/compare/v0.3.2...v0.4.0
@@ -101,4 +106,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.3.1]: https://github.com/selesse/gradle-daemon-app/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/selesse/gradle-daemon-app/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/selesse/gradle-daemon-app/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/selesse/gradle-daemon-app/releases/tag/v0.1.0
+[0.1.0]: https://github.com/selesse/gradle-daemon-app/commits/v0.1.0
+[Unreleased]: https://github.com/selesse/gradle-daemon-app/compare/v0.5.0...HEAD
