@@ -3,6 +3,7 @@ package com.selesse.gradle.daemon.tasks
 import com.selesse.gradle.daemon.DaemonAppExtension
 import com.selesse.gradle.daemon.platform.JavaHomeProvider
 import com.selesse.gradle.daemon.platform.PlatformHandlerFactory
+import com.selesse.gradle.daemon.process.Processes
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import java.io.File
@@ -22,13 +23,22 @@ abstract class InstallDaemonTask : DefaultTask() {
         val jarTask = extension.jarTask.get()
         val jarFile = jarTask.archiveFile.get().asFile
 
-        val releaseDir = extension.releaseDir.orNull?.asFile
-            ?: project.layout.projectDirectory.file("release").asFile
+        val releaseDir = DaemonVersion.resolveReleaseDir(project, extension)
 
         releaseDir.mkdirs()
         val releasedJar = File(releaseDir, jarFile.name)
         jarFile.copyTo(releasedJar, overwrite = true)
         logger.lifecycle("Copied JAR to: ${releasedJar.absolutePath}")
+
+        if (extension.trackVersion.getOrElse(false)) {
+            val version = DaemonVersion.captureGitSha(project, Processes())
+            if (version != null) {
+                DaemonVersion.write(releaseDir, version)
+                logger.lifecycle("Recorded version: $version")
+            } else {
+                logger.lifecycle("Could not determine git SHA; skipping version tracking")
+            }
+        }
 
         val javaHome = JavaHomeProvider.get(extension)
         logger.lifecycle("Using Java home: $javaHome")

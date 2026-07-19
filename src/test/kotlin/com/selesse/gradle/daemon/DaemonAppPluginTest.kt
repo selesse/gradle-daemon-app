@@ -56,6 +56,7 @@ class DaemonAppPluginTest {
         val extension = project.extensions.getByType(DaemonAppExtension::class.java)
 
         assertTrue(extension.keepAlive.get(), "keepAlive should default to true")
+        assertTrue(extension.trackVersion.get(), "trackVersion should default to true")
         assertTrue(extension.jvmArgs.get().isEmpty(), "jvmArgs should default to empty list")
         assertTrue(extension.appArgs.get().isEmpty(), "appArgs should default to empty list")
     }

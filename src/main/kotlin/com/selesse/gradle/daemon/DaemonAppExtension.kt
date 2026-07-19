@@ -68,6 +68,16 @@ abstract class DaemonAppExtension @Inject constructor() {
     abstract val keepAlive: Property<Boolean>
 
     /**
+     * Optional: When enabled, records the project's git SHA at install time (appending
+     * "-dirty" if the working tree has uncommitted changes) and displays it as the
+     * daemon's version in `daemonStatus`. Set to false to disable.
+     * Default: true
+     */
+    @get:Input
+    @get:Optional
+    abstract val trackVersion: Property<Boolean>
+
+    /**
      * Optional: Java launcher to use for the daemon.
      * If not specified, uses the project's toolchain.
      */

@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `trackVersion` option (enabled by default): records the project's git SHA at install time and displays it in `daemonStatus`. Set `trackVersion = false` to disable.
+
 ### Changed
 
 ### Deprecated

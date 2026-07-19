@@ -88,6 +88,10 @@ daemonApp {
     // Auto-restart on crash (default: true)
     keepAlive = true
 
+    // Record the project's git SHA at install time and show it in `daemonStatus`
+    // (default: true)
+    trackVersion = false
+
     // Java launcher (default: uses project toolchain)
     javaLauncher = javaToolchains.launcherFor {
         languageVersion.set(JavaLanguageVersion.of(21))
@@ -206,6 +210,7 @@ Shows the current status of the daemon.
 ```
 Daemon Status:
   Service ID: com.example.my-daemon
+  Version: abc1234
   Running: Yes
   PID: 12345
   Config: /Users/user/Library/LaunchAgents/com.example.my-daemon.plist

@@ -14,6 +14,7 @@ abstract class DaemonAppPlugin : Plugin<Project> {
         val extension = project.extensions.create("daemonApp", DaemonAppExtension::class.java)
 
         extension.keepAlive.convention(true)
+        extension.trackVersion.convention(true)
         extension.releaseDir.convention(
             project.layout.file(
                 extension.serviceId.map { serviceId ->

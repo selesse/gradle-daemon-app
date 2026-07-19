@@ -15,6 +15,11 @@ abstract class DaemonStatusTask : DefaultTask() {
 
         logger.lifecycle("Daemon Status:")
         logger.lifecycle("  Service ID: ${extension.serviceId.get()}")
+        if (extension.trackVersion.getOrElse(false)) {
+            val releaseDir = DaemonVersion.resolveReleaseDir(project, extension)
+            val version = DaemonVersion.read(releaseDir)
+            logger.lifecycle("  Version: ${version ?: "unknown"}")
+        }
         logger.lifecycle("  Running: ${if (status.running) "Yes" else "No"}")
         if (status.pid != null) {
             logger.lifecycle("  PID: ${status.pid}")
