@@ -1,5 +1,6 @@
 package com.selesse.gradle.daemon.integration
 
+import com.selesse.gradle.daemon.platform.PlatformHandlerFactory
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.Assertions.*
@@ -353,6 +354,89 @@ class DaemonAppPluginIntegrationTest {
             .build()
 
         assertEquals(TaskOutcome.SUCCESS, secondRun.task(":daemonStatus")?.outcome)
+        assertTrue(
+            secondRun.output.contains("Reusing configuration cache"),
+            "Second run should reuse the configuration cache. Output was: ${secondRun.output}",
+        )
+    }
+
+    @Test
+    fun `mutating daemon tasks work with the configuration cache using the noop test handler`(@TempDir tempDir: Path) {
+        val releaseDirPath = tempDir.resolve("release").toString().replace("\\", "\\\\")
+
+        val buildFile = tempDir.resolve("build.gradle.kts").toFile()
+        buildFile.writeText(
+            """
+            plugins {
+                id("com.selesse.daemon-app")
+                id("java")
+            }
+
+            daemonApp {
+                serviceId.set("com.example.config-cache-mutating-test-daemon")
+                releaseDir.set(file("$releaseDirPath"))
+                trackVersion.set(false)
+            }
+
+            tasks.register<Jar>("shadowJar") {
+                archiveBaseName.set("test-daemon")
+                archiveVersion.set("1.0.0")
+            }
+            """.trimIndent(),
+        )
+
+        val settingsFile = tempDir.resolve("settings.gradle.kts").toFile()
+        settingsFile.writeText(
+            """
+            rootProject.name = "test-daemon"
+            """.trimIndent(),
+        )
+
+        val srcDir = tempDir.resolve("src/main/java/com/example").toFile()
+        srcDir.mkdirs()
+        File(srcDir, "Main.java").writeText(
+            """
+            package com.example;
+
+            public class Main {
+                public static void main(String[] args) {
+                }
+            }
+            """.trimIndent(),
+        )
+
+        // -D${PlatformHandlerFactory.TEST_HANDLER_PROPERTY}=noop swaps in NoopPlatformHandler so
+        // these tasks never touch real launchctl/systemctl/WinSW, while still exercising the exact
+        // same DaemonRequest-based, Project-free code path that the real handlers use.
+        val arguments = arrayOf(
+            "daemonInstall",
+            "daemonStart",
+            "daemonStop",
+            "daemonRestart",
+            "daemonUninstall",
+            "-D${PlatformHandlerFactory.TEST_HANDLER_PROPERTY}=noop",
+            "--configuration-cache",
+        )
+
+        val firstRun = GradleRunner.create()
+            .withProjectDir(tempDir.toFile())
+            .withArguments(*arguments)
+            .withPluginClasspath()
+            .build()
+
+        assertEquals(TaskOutcome.SUCCESS, firstRun.task(":daemonInstall")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, firstRun.task(":daemonStart")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, firstRun.task(":daemonStop")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, firstRun.task(":daemonRestart")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, firstRun.task(":daemonUninstall")?.outcome)
+
+        val secondRun = GradleRunner.create()
+            .withProjectDir(tempDir.toFile())
+            .withArguments(*arguments)
+            .withPluginClasspath()
+            .build()
+
+        assertEquals(TaskOutcome.SUCCESS, secondRun.task(":daemonInstall")?.outcome)
         assertTrue(
             secondRun.output.contains("Reusing configuration cache"),
             "Second run should reuse the configuration cache. Output was: ${secondRun.output}",
