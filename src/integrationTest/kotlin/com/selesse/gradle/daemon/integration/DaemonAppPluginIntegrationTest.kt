@@ -284,4 +284,78 @@ class DaemonAppPluginIntegrationTest {
 
         assertEquals(TaskOutcome.SUCCESS, result.task(":tasks")?.outcome)
     }
+
+    @Test
+    fun `read-only daemon tasks work with the configuration cache`(@TempDir tempDir: Path) {
+        val plistPath = tempDir.resolve("service.plist").toString().replace("\\", "\\\\")
+        val releaseDirPath = tempDir.resolve("release").toString().replace("\\", "\\\\")
+
+        val buildFile = tempDir.resolve("build.gradle.kts").toFile()
+        buildFile.writeText(
+            """
+            plugins {
+                id("com.selesse.daemon-app")
+                id("java")
+            }
+
+            daemonApp {
+                serviceId.set("com.example.config-cache-test-daemon")
+                releaseDir.set(file("$releaseDirPath"))
+
+                macOS {
+                    plistPath = "$plistPath"
+                }
+            }
+
+            tasks.register<Jar>("shadowJar") {
+                archiveBaseName.set("test-daemon")
+                archiveVersion.set("1.0.0")
+            }
+            """.trimIndent(),
+        )
+
+        val settingsFile = tempDir.resolve("settings.gradle.kts").toFile()
+        settingsFile.writeText(
+            """
+            rootProject.name = "test-daemon"
+            """.trimIndent(),
+        )
+
+        val srcDir = tempDir.resolve("src/main/java/com/example").toFile()
+        srcDir.mkdirs()
+        File(srcDir, "Main.java").writeText(
+            """
+            package com.example;
+
+            public class Main {
+                public static void main(String[] args) {
+                }
+            }
+            """.trimIndent(),
+        )
+
+        val arguments = arrayOf("daemonStatus", "daemonLogs", "daemonUninstall", "--configuration-cache")
+
+        val firstRun = GradleRunner.create()
+            .withProjectDir(tempDir.toFile())
+            .withArguments(*arguments)
+            .withPluginClasspath()
+            .build()
+
+        assertEquals(TaskOutcome.SUCCESS, firstRun.task(":daemonStatus")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, firstRun.task(":daemonLogs")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, firstRun.task(":daemonUninstall")?.outcome)
+
+        val secondRun = GradleRunner.create()
+            .withProjectDir(tempDir.toFile())
+            .withArguments(*arguments)
+            .withPluginClasspath()
+            .build()
+
+        assertEquals(TaskOutcome.SUCCESS, secondRun.task(":daemonStatus")?.outcome)
+        assertTrue(
+            secondRun.output.contains("Reusing configuration cache"),
+            "Second run should reuse the configuration cache. Output was: ${secondRun.output}",
+        )
+    }
 }

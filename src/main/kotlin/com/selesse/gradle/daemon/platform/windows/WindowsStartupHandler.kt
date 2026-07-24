@@ -1,12 +1,10 @@
 package com.selesse.gradle.daemon.platform.windows
 
-import com.selesse.gradle.daemon.DaemonAppExtension
 import com.selesse.gradle.daemon.platform.DaemonBackend
 import com.selesse.gradle.daemon.platform.DaemonConfig
 import com.selesse.gradle.daemon.platform.DaemonStatus
 import com.selesse.gradle.daemon.process.ProcessExecutor
 import com.selesse.gradle.daemon.process.Processes
-import org.gradle.api.Project
 import org.gradle.api.logging.Logging
 import java.io.File
 
@@ -22,7 +20,7 @@ class WindowsStartupHandler(
         return ""
     }
 
-    override fun getDefaultLogPath(project: Project, extension: DaemonAppExtension): String {
+    override fun getDefaultLogPath(serviceId: String, releaseDir: File?, logFile: File?, projectDir: File): String {
         // Windows startup folder doesn't have a standard log path
         return ""
     }

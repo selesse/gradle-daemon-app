@@ -1,12 +1,10 @@
 package com.selesse.gradle.daemon.platform.macos
 
-import com.selesse.gradle.daemon.DaemonAppExtension
 import com.selesse.gradle.daemon.platform.DaemonBackend
 import com.selesse.gradle.daemon.platform.DaemonConfig
 import com.selesse.gradle.daemon.platform.DaemonStatus
 import com.selesse.gradle.daemon.process.ProcessExecutor
 import com.selesse.gradle.daemon.process.Processes
-import org.gradle.api.Project
 import org.gradle.api.logging.Logging
 import java.io.File
 
@@ -16,15 +14,15 @@ class MacOSPlistHandler(
     private val logger = Logging.getLogger(MacOSPlistHandler::class.java)
 
     override fun getDefaultConfigPath(serviceId: String, platformConfig: Any?): String {
-        val macOSConfig = platformConfig as? DaemonAppExtension.MacOSConfig
-        return macOSConfig?.plistPath
+        val plistPath = platformConfig as? String
+        return plistPath
             ?: "${System.getProperty("user.home")}/Library/LaunchAgents/$serviceId.plist"
     }
 
-    override fun getDefaultLogPath(project: Project, extension: DaemonAppExtension): String {
-        return extension.logFile.orNull?.asFile?.absolutePath
-            ?: extension.releaseDir.orNull?.asFile?.resolve("daemon.log")?.absolutePath
-            ?: project.layout.projectDirectory.file("release/daemon.log").asFile.absolutePath
+    override fun getDefaultLogPath(serviceId: String, releaseDir: File?, logFile: File?, projectDir: File): String {
+        return logFile?.absolutePath
+            ?: releaseDir?.resolve("daemon.log")?.absolutePath
+            ?: File(projectDir, "release/daemon.log").absolutePath
     }
 
     override fun install(config: DaemonConfig) {

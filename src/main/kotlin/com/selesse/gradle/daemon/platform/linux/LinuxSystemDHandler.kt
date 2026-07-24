@@ -1,12 +1,10 @@
 package com.selesse.gradle.daemon.platform.linux
 
-import com.selesse.gradle.daemon.DaemonAppExtension
 import com.selesse.gradle.daemon.platform.DaemonBackend
 import com.selesse.gradle.daemon.platform.DaemonConfig
 import com.selesse.gradle.daemon.platform.DaemonStatus
 import com.selesse.gradle.daemon.process.ProcessExecutor
 import com.selesse.gradle.daemon.process.Processes
-import org.gradle.api.Project
 import org.gradle.api.logging.Logging
 import java.io.File
 
@@ -16,16 +14,16 @@ class LinuxSystemDHandler(
     private val logger = Logging.getLogger(LinuxSystemDHandler::class.java)
 
     override fun getDefaultConfigPath(serviceId: String, platformConfig: Any?): String {
-        val linuxConfig = platformConfig as? DaemonAppExtension.LinuxConfig
+        val servicePath = platformConfig as? String
         val serviceName = "$serviceId.service"
-        return linuxConfig?.servicePath
+        return servicePath
             ?: "${System.getProperty("user.home")}/.config/systemd/user/$serviceName"
     }
 
-    override fun getDefaultLogPath(project: Project, extension: DaemonAppExtension): String {
-        return extension.logFile.orNull?.asFile?.absolutePath
-            ?: extension.releaseDir.orNull?.asFile?.resolve("daemon.log")?.absolutePath
-            ?: project.layout.projectDirectory.file("release/daemon.log").asFile.absolutePath
+    override fun getDefaultLogPath(serviceId: String, releaseDir: File?, logFile: File?, projectDir: File): String {
+        return logFile?.absolutePath
+            ?: releaseDir?.resolve("daemon.log")?.absolutePath
+            ?: File(projectDir, "release/daemon.log").absolutePath
     }
 
     override fun install(config: DaemonConfig) {

@@ -1,18 +1,16 @@
 package com.selesse.gradle.daemon.tasks
 
-import com.selesse.gradle.daemon.DaemonAppExtension
 import com.selesse.gradle.daemon.platform.PlatformHandlerFactory
-import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 
-abstract class DaemonLogsTask : DefaultTask() {
+abstract class DaemonLogsTask : AbstractDaemonTask() {
     @TaskAction
     fun logs() {
-        val extension = project.extensions.getByType(DaemonAppExtension::class.java)
+        val request = daemonRequest()
         val handler = PlatformHandlerFactory.create()
 
-        val status = handler.status(project, extension)
+        val status = handler.status(request)
 
         if (status.logPath == null) {
             logger.lifecycle("No log file path available")

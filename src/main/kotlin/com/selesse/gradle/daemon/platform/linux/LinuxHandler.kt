@@ -1,56 +1,37 @@
 package com.selesse.gradle.daemon.platform.linux
 
-import com.selesse.gradle.daemon.DaemonAppExtension
 import com.selesse.gradle.daemon.platform.DaemonBackend
 import com.selesse.gradle.daemon.platform.DaemonConfig
+import com.selesse.gradle.daemon.platform.DaemonRequest
 import com.selesse.gradle.daemon.platform.DaemonStatus
-import com.selesse.gradle.daemon.platform.JavaHomeProvider
 import com.selesse.gradle.daemon.platform.PlatformHandler
-import org.gradle.api.Project
 import java.io.File
 
 class LinuxHandler(
     private val backend: DaemonBackend = LinuxSystemDHandler(),
 ) : PlatformHandler {
-    override fun install(
-        project: Project,
-        extension: DaemonAppExtension,
-        jarFile: File,
-        javaHome: String,
-    ) {
-        val config = buildConfig(project, extension, jarFile, javaHome)
+    override fun install(request: DaemonRequest, releasedJarFile: File) {
+        val config = buildConfig(request, releasedJarFile)
         backend.install(config)
     }
 
-    override fun start(
-        project: Project,
-        extension: DaemonAppExtension,
-    ): Long? {
-        val config = buildConfig(project, extension)
+    override fun start(request: DaemonRequest): Long? {
+        val config = buildConfig(request)
         return backend.start(config)
     }
 
-    override fun stop(
-        project: Project,
-        extension: DaemonAppExtension,
-    ): Long? {
-        val config = buildConfig(project, extension)
+    override fun stop(request: DaemonRequest): Long? {
+        val config = buildConfig(request)
         return backend.stop(config)
     }
 
-    override fun status(
-        project: Project,
-        extension: DaemonAppExtension,
-    ): DaemonStatus {
-        val config = buildConfig(project, extension)
+    override fun status(request: DaemonRequest): DaemonStatus {
+        val config = buildConfig(request)
         return backend.getStatus(config)
     }
 
-    override fun uninstall(
-        project: Project,
-        extension: DaemonAppExtension,
-    ) {
-        val config = buildConfig(project, extension)
+    override fun uninstall(request: DaemonRequest) {
+        val config = buildConfig(request)
 
         val status = backend.getStatus(config)
         if (status.running) {
@@ -61,26 +42,21 @@ class LinuxHandler(
     }
 
     private fun buildConfig(
-        project: Project,
-        extension: DaemonAppExtension,
-        jarFile: File? = null,
-        javaHome: String? = null,
+        request: DaemonRequest,
+        jarFileOverride: File? = null,
     ): DaemonConfig {
-        val actualJarFile = jarFile ?: extension.jarTask.get().archiveFile.get().asFile
-        val actualJavaHome = javaHome ?: JavaHomeProvider.get(extension)
-
-        val configPath = backend.getDefaultConfigPath(extension.serviceId.get(), extension.linux)
-        val logPath = backend.getDefaultLogPath(project, extension)
+        val configPath = backend.getDefaultConfigPath(request.serviceId, request.linuxServicePath)
+        val logPath = backend.getDefaultLogPath(request.serviceId, request.releaseDir, request.logFile, request.projectDir)
 
         return DaemonConfig(
-            serviceId = extension.serviceId.get(),
-            jarFile = actualJarFile,
-            javaHome = actualJavaHome,
+            serviceId = request.serviceId,
+            jarFile = jarFileOverride ?: request.jarFile,
+            javaHome = request.javaHome,
             configPath = configPath,
             logPath = logPath,
-            jvmArgs = extension.jvmArgs.getOrElse(emptyList()),
-            appArgs = extension.appArgs.getOrElse(emptyList()),
-            keepAlive = extension.keepAlive.getOrElse(true),
+            jvmArgs = request.jvmArgs,
+            appArgs = request.appArgs,
+            keepAlive = request.keepAlive,
         )
     }
 }

@@ -1,37 +1,31 @@
 package com.selesse.gradle.daemon.tasks
 
-import com.selesse.gradle.daemon.DaemonAppExtension
-import com.selesse.gradle.daemon.platform.JavaHomeProvider
 import com.selesse.gradle.daemon.platform.PlatformHandlerFactory
 import com.selesse.gradle.daemon.process.Processes
-import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 
-abstract class InstallDaemonTask : DefaultTask() {
+abstract class InstallDaemonTask : AbstractDaemonTask() {
     @TaskAction
     fun install() {
-        val extension = project.extensions.getByType(DaemonAppExtension::class.java)
+        val request = daemonRequest()
         val handler = PlatformHandlerFactory.create()
 
-        val status = handler.status(project, extension)
+        val status = handler.status(request)
         if (status.running) {
             logger.lifecycle("Stopping existing daemon (PID: ${status.pid ?: "unknown"})...")
-            handler.stop(project, extension)
+            handler.stop(request)
         }
 
-        val jarTask = extension.jarTask.get()
-        val jarFile = jarTask.archiveFile.get().asFile
-
-        val releaseDir = DaemonVersion.resolveReleaseDir(project, extension)
+        val releaseDir = DaemonVersion.resolveReleaseDir(request.releaseDir, request.projectDir)
 
         releaseDir.mkdirs()
-        val releasedJar = File(releaseDir, jarFile.name)
-        jarFile.copyTo(releasedJar, overwrite = true)
+        val releasedJar = File(releaseDir, request.jarFile.name)
+        request.jarFile.copyTo(releasedJar, overwrite = true)
         logger.lifecycle("Copied JAR to: ${releasedJar.absolutePath}")
 
-        if (extension.trackVersion.getOrElse(false)) {
-            val version = DaemonVersion.captureGitSha(project, Processes())
+        if (trackVersion.getOrElse(false)) {
+            val version = DaemonVersion.captureGitSha(request.projectDir, Processes())
             if (version != null) {
                 DaemonVersion.write(releaseDir, version)
                 logger.lifecycle("Recorded version: $version")
@@ -40,13 +34,12 @@ abstract class InstallDaemonTask : DefaultTask() {
             }
         }
 
-        val javaHome = JavaHomeProvider.get(extension)
-        logger.lifecycle("Using Java home: $javaHome")
+        logger.lifecycle("Using Java home: ${request.javaHome}")
 
-        handler.install(project, extension, releasedJar, javaHome)
+        handler.install(request, releasedJar)
 
         logger.lifecycle("Starting daemon...")
-        val pid = handler.start(project, extension)
+        val pid = handler.start(request)
 
         if (pid != null) {
             logger.lifecycle("Started new daemon with PID: $pid")

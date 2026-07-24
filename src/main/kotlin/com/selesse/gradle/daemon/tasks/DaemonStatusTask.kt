@@ -1,22 +1,20 @@
 package com.selesse.gradle.daemon.tasks
 
-import com.selesse.gradle.daemon.DaemonAppExtension
 import com.selesse.gradle.daemon.platform.PlatformHandlerFactory
-import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
-abstract class DaemonStatusTask : DefaultTask() {
+abstract class DaemonStatusTask : AbstractDaemonTask() {
     @TaskAction
     fun status() {
-        val extension = project.extensions.getByType(DaemonAppExtension::class.java)
+        val request = daemonRequest()
         val handler = PlatformHandlerFactory.create()
 
-        val status = handler.status(project, extension)
+        val status = handler.status(request)
 
         logger.lifecycle("Daemon Status:")
-        logger.lifecycle("  Service ID: ${extension.serviceId.get()}")
-        if (extension.trackVersion.getOrElse(false)) {
-            val releaseDir = DaemonVersion.resolveReleaseDir(project, extension)
+        logger.lifecycle("  Service ID: ${request.serviceId}")
+        if (trackVersion.getOrElse(false)) {
+            val releaseDir = DaemonVersion.resolveReleaseDir(request.releaseDir, request.projectDir)
             val version = DaemonVersion.read(releaseDir)
             logger.lifecycle("  Version: ${version ?: "unknown"}")
         }

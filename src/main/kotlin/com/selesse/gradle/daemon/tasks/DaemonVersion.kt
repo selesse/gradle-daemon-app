@@ -1,8 +1,6 @@
 package com.selesse.gradle.daemon.tasks
 
-import com.selesse.gradle.daemon.DaemonAppExtension
 import com.selesse.gradle.daemon.process.ProcessExecutor
-import org.gradle.api.Project
 import java.io.File
 
 /**
@@ -12,9 +10,8 @@ import java.io.File
 internal object DaemonVersion {
     private const val FILE_NAME = "VERSION"
 
-    fun resolveReleaseDir(project: Project, extension: DaemonAppExtension): File {
-        return extension.releaseDir.orNull?.asFile
-            ?: project.layout.projectDirectory.file("release").asFile
+    fun resolveReleaseDir(releaseDir: File?, projectDir: File): File {
+        return releaseDir ?: File(projectDir, "release")
     }
 
     /**
@@ -22,16 +19,16 @@ internal object DaemonVersion {
      * tree has uncommitted changes. Returns null if the project isn't in a git repository
      * or git isn't available.
      */
-    fun captureGitSha(project: Project, processExecutor: ProcessExecutor): String? {
-        val projectDir = project.projectDir.absolutePath
+    fun captureGitSha(projectDir: File, processExecutor: ProcessExecutor): String? {
+        val projectDirPath = projectDir.absolutePath
 
-        val shaResult = processExecutor.execute(listOf("git", "-C", projectDir, "rev-parse", "HEAD"))
+        val shaResult = processExecutor.execute(listOf("git", "-C", projectDirPath, "rev-parse", "HEAD"))
         val sha = shaResult.stdout.trim()
         if (shaResult.exitCode != 0 || sha.isEmpty()) {
             return null
         }
 
-        val statusResult = processExecutor.execute(listOf("git", "-C", projectDir, "status", "--porcelain"))
+        val statusResult = processExecutor.execute(listOf("git", "-C", projectDirPath, "status", "--porcelain"))
         val isDirty = statusResult.exitCode == 0 && statusResult.stdout.isNotBlank()
 
         return if (isDirty) "$sha-dirty" else sha

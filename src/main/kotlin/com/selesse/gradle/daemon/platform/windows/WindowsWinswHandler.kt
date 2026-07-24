@@ -1,12 +1,10 @@
 package com.selesse.gradle.daemon.platform.windows
 
-import com.selesse.gradle.daemon.DaemonAppExtension
 import com.selesse.gradle.daemon.platform.DaemonBackend
 import com.selesse.gradle.daemon.platform.DaemonConfig
 import com.selesse.gradle.daemon.platform.DaemonStatus
 import com.selesse.gradle.daemon.process.ProcessExecutor
 import com.selesse.gradle.daemon.process.Processes
-import org.gradle.api.Project
 import org.gradle.api.logging.Logging
 import java.io.File
 import java.nio.file.Files
@@ -32,10 +30,9 @@ class WindowsWinswHandler(
         return File(releaseDir, "$serviceId.xml").absolutePath
     }
 
-    override fun getDefaultLogPath(project: Project, extension: DaemonAppExtension): String {
-        val serviceId = extension.serviceId.get()
-        val releaseDir = getReleaseDir(serviceId)
-        return File(releaseDir, "$serviceId.out.log").absolutePath
+    override fun getDefaultLogPath(serviceId: String, releaseDir: File?, logFile: File?, projectDir: File): String {
+        val winswReleaseDir = getReleaseDir(serviceId)
+        return File(winswReleaseDir, "$serviceId.out.log").absolutePath
     }
 
     override fun install(config: DaemonConfig) {

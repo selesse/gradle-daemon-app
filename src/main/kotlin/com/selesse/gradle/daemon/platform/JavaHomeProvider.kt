@@ -1,24 +1,22 @@
 package com.selesse.gradle.daemon.platform
 
-import com.selesse.gradle.daemon.DaemonAppExtension
 import org.gradle.internal.os.OperatingSystem
 import java.io.File
 
 object JavaHomeProvider {
-    fun get(extension: DaemonAppExtension): String {
-        // First, check if explicitly configured via javaLauncher
-        val launcherHome = extension.javaLauncher.orNull?.metadata?.installationPath?.asFile?.absolutePath
-        if (launcherHome != null) {
-            return launcherHome
-        }
-
-        // Second, check JAVA_HOME environment variable
+    /**
+     * Resolves JAVA_HOME without a configured `javaLauncher` (which is checked first by whoever
+     * wires up a task's `javaHome` property). Pure/stateless so it's safe to invoke lazily at
+     * task execution time under the configuration cache.
+     */
+    fun resolveWithoutLauncher(): String {
+        // First, check JAVA_HOME environment variable
         val javaHome = System.getenv("JAVA_HOME")
         if (javaHome != null) {
             return javaHome
         }
 
-        // Third, try to find java executable in PATH
+        // Second, try to find java executable in PATH
         val javaExecutable = if (OperatingSystem.current().isWindows) "java.exe" else "java"
         val processBuilder = ProcessBuilder("which", javaExecutable)
         val process = processBuilder.start()

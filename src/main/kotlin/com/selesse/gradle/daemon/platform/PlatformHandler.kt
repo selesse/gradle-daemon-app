@@ -1,7 +1,5 @@
 package com.selesse.gradle.daemon.platform
 
-import com.selesse.gradle.daemon.DaemonAppExtension
-import org.gradle.api.Project
 import java.io.File
 
 /**
@@ -10,51 +8,36 @@ import java.io.File
 interface PlatformHandler {
     /**
      * Install daemon configuration files for this platform.
+     * [releasedJarFile] is the copy of the built JAR that `daemonInstall` places in the release
+     * directory (distinct from [DaemonRequest.jarFile], the original build output).
      */
-    fun install(
-        project: Project,
-        extension: DaemonAppExtension,
-        jarFile: File,
-        javaHome: String,
-    )
+    fun install(request: DaemonRequest, releasedJarFile: File)
 
     /**
      * Start the daemon on this platform.
      * Returns the PID of the started process, or null if unknown.
      */
-    fun start(
-        project: Project,
-        extension: DaemonAppExtension,
-    ): Long?
+    fun start(request: DaemonRequest): Long?
 
     /**
      * Stop the daemon on this platform.
      * Returns the PID of the stopped process, or null if not running.
      */
-    fun stop(
-        project: Project,
-        extension: DaemonAppExtension,
-    ): Long?
+    fun stop(request: DaemonRequest): Long?
 
     /**
      * Get the status of the daemon.
      * Returns a map with status information (running, pid, etc.)
      */
-    fun status(
-        project: Project,
-        extension: DaemonAppExtension,
-    ): DaemonStatus
+    fun status(request: DaemonRequest): DaemonStatus
 
     /**
      * Restart the daemon (stop + start).
      * Returns a pair of (stopped PID, started PID).
      */
-    fun restart(
-        project: Project,
-        extension: DaemonAppExtension,
-    ): Pair<Long?, Long?> {
-        val stoppedPid = stop(project, extension)
-        val startedPid = start(project, extension)
+    fun restart(request: DaemonRequest): Pair<Long?, Long?> {
+        val stoppedPid = stop(request)
+        val startedPid = start(request)
         return Pair(stoppedPid, startedPid)
     }
 
@@ -62,10 +45,7 @@ interface PlatformHandler {
      * Uninstall the daemon.
      * Stops the daemon if running, removes configuration files, and cleans up.
      */
-    fun uninstall(
-        project: Project,
-        extension: DaemonAppExtension,
-    )
+    fun uninstall(request: DaemonRequest)
 }
 
 data class DaemonStatus(

@@ -16,7 +16,7 @@ class DaemonVersionTest {
             .mockSuccess(listOf("git", "-C", project.projectDir.absolutePath, "rev-parse", "HEAD"), stdout = "abc1234\n")
             .mockSuccess(listOf("git", "-C", project.projectDir.absolutePath, "status", "--porcelain"), stdout = "")
 
-        val version = DaemonVersion.captureGitSha(project, processExecutor)
+        val version = DaemonVersion.captureGitSha(project.projectDir, processExecutor)
 
         assertEquals("abc1234", version)
     }
@@ -28,7 +28,7 @@ class DaemonVersionTest {
             .mockSuccess(listOf("git", "-C", project.projectDir.absolutePath, "rev-parse", "HEAD"), stdout = "abc1234\n")
             .mockSuccess(listOf("git", "-C", project.projectDir.absolutePath, "status", "--porcelain"), stdout = " M file.txt\n")
 
-        val version = DaemonVersion.captureGitSha(project, processExecutor)
+        val version = DaemonVersion.captureGitSha(project.projectDir, processExecutor)
 
         assertEquals("abc1234-dirty", version)
     }
@@ -42,7 +42,7 @@ class DaemonVersionTest {
                 stderr = "fatal: not a git repository",
             )
 
-        val version = DaemonVersion.captureGitSha(project, processExecutor)
+        val version = DaemonVersion.captureGitSha(project.projectDir, processExecutor)
 
         assertNull(version)
     }
